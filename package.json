@@ -1,0 +1,37 @@
+{
+  "name": "migration-training",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "videos": "node scripts/list-videos.mjs",
+    "predev": "node scripts/list-videos.mjs",
+    "dev": "vite",
+    "prebuild": "node scripts/list-videos.mjs",
+    "build": "tsc -b && vite build",
+    "test": "vitest run",
+    "deploy": "wrangler deploy",
+    "heygen": "tsx scripts/build-heygen-scripts.ts",
+    "slides": "tsx scripts/build-slides.ts"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.2",
+    "jsdom": "^29.1.1",
+    "playwright-core": "^1.63.0",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vitest": "^5.0.3",
+    "wrangler": "^4.147.0"
+  }
+}

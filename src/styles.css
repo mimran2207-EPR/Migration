@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Heebo", ui-sans-serif, system-ui, sans-serif;
+  --color-muni-dark: #4338ca;
+  --color-muni-light: #06b6d4;
+}
+
+body {
+  font-family: "Heebo", sans-serif;
+  background: #f4f5fb;
+  color: #1e293b;
+}
+
+.muni-gradient {
+  background-image: linear-gradient(90deg, #4338ca, #06b6d4);
+}
+
+@keyframes muni-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(14, 124, 155, 0.55);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(14, 124, 155, 0);
+  }
+}
+
+.highlight-ring {
+  border: 3px solid #4338ca;
+  border-radius: 0.75rem;
+  animation: muni-pulse 1.6s ease-in-out infinite;
+}
+
+/* ---------- Floating 3D presenter ---------- */
+/* --tilt: -1 when the card sits on the left (faces right), 1 on the right. */
+.avatar-stage {
+  perspective: 1000px;
+}
+
+.avatar-3d {
+  position: relative;
+  transform-style: preserve-3d;
+  /* free-standing figure (transparent background): depth via drop shadows, glow follows the voice */
+  filter: drop-shadow(0 22px 18px rgba(8, 60, 80, 0.45))
+    drop-shadow(0 0 calc(var(--lvl, 0) * 18px) rgba(79, 209, 181, 0.95));
+  animation: avatar-sway 7s ease-in-out infinite;
+  transition: filter 90ms linear;
+}
+
+@keyframes avatar-sway {
+  0%,
+  100% {
+    transform: rotateY(calc(var(--tilt, -1) * 14deg)) rotateX(3deg) translateY(0);
+  }
+  50% {
+    transform: rotateY(calc(var(--tilt, -1) * 6deg)) rotateX(1deg) translateY(-6px);
+  }
+}
+
+.avatar-face {
+  position: relative;
+  aspect-ratio: 540 / 960;
+  transition: transform 90ms linear;
+}
+
+.is-speaking .avatar-face {
+  transform: translateY(calc(var(--lvl, 0) * -3px)) rotate(calc(var(--lvl, 0) * 1deg));
+}
+
+.avatar-frame,
+.avatar-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: 50% 100%;
+}
+
+.avatar-media {
+  position: relative;
+  aspect-ratio: 540 / 960;
+}
+
+/* Frame 0 (closed mouth) always shows; half/open frames overlay it by voice level. */
+.avatar-frame.mouth-1,
+.avatar-frame.mouth-2 {
+  opacity: 0;
+}
+.avatar-3d[data-mouth="1"] .mouth-1,
+.avatar-3d[data-mouth="2"] .mouth-2 {
+  opacity: 1;
+}
+
+.avatar-tag {
+  margin: 0.15rem auto 0;
+  display: flex;
+  width: max-content;
+  max-width: 100%;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.15rem 0.7rem;
+  font-size: clamp(0.65rem, 1vw, 0.85rem);
+  line-height: 1.25;
+  color: #fff;
+  background: linear-gradient(90deg, #4338ca, #06b6d4);
+  box-shadow: 0 4px 10px -4px rgba(8, 60, 80, 0.5);
+}
+
+/* Phones: the presenter becomes a small round "video call" bubble showing the face. */
+@media (max-width: 767px) {
+  .presenter-slot .avatar-3d {
+    overflow: hidden;
+    border-radius: 9999px;
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #e7f8fb, #e0e7ff);
+    box-shadow:
+      0 0 0 3px #fff,
+      0 6px 14px -4px rgba(8, 60, 80, 0.5),
+      0 0 calc(4px + var(--lvl, 0) * 16px) rgba(79, 209, 181, 0.95);
+    filter: none;
+    animation: none;
+  }
+  .presenter-slot .avatar-face,
+  .presenter-slot .avatar-media {
+    aspect-ratio: 1;
+  }
+  .presenter-slot .avatar-frame,
+  .presenter-slot .avatar-media {
+    object-fit: cover;
+    object-position: 50% 0%;
+    transform: scale(2.3);
+    transform-origin: 51% 9%;
+  }
+  .presenter-slot .avatar-tag {
+    display: none;
+  }
+}
+
+/* Spotlight: dim the screenshot around the highlighted area. */
+.spotlight {
+  box-shadow: 0 0 0 9999px rgba(15, 23, 42, 0.38);
+  border-radius: 0.75rem;
+}
+
+/* Karaoke caption: the word being narrated glows yellow. */
+.word-active {
+  border-radius: 0.3em;
+  background-color: #fde047;
+  color: #1f2937;
+  box-shadow:
+    0 0 0 0.12em #fde047,
+    0 0 0.9em 0.25em rgba(253, 224, 71, 0.85);
+  transition:
+    background-color 120ms,
+    box-shadow 120ms;
+}
+
+.word-spoken {
+  color: #312e81;
+}
+
+/* Voice-reactive avatar: --lvl (0..1) is set every frame from the narration's audio level. */
+.avatar-voice {
+  transform: scale(calc(1 + var(--lvl, 0) * 0.04));
+  filter: drop-shadow(0 0 calc(var(--lvl, 0) * 22px) rgba(79, 209, 181, 0.95)) brightness(calc(1 + var(--lvl, 0) * 0.08));
+  transition:
+    transform 70ms linear,
+    filter 70ms linear;
+}
+
+@keyframes avatar-breathe {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-3px) scale(1.01);
+  }
+}
+
+.avatar-idle {
+  animation: avatar-breathe 3.6s ease-in-out infinite;
+}
+
+/* Still avatar "talks" while browser narration plays. */
+@keyframes avatar-talk {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(79, 209, 181, 0.6);
+  }
+  50% {
+    transform: scale(1.04);
+    box-shadow: 0 0 0 8px rgba(79, 209, 181, 0);
+  }
+}
+
+.avatar-speaking {
+  animation: avatar-talk 0.9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .highlight-ring {
+    animation: none;
+    box-shadow: 0 0 0 4px rgba(14, 124, 155, 0.35);
+  }
+  .avatar-speaking,
+  .avatar-idle,
+  .avatar-3d {
+    animation: none;
+  }
+  .is-speaking .avatar-face {
+    transform: none;
+  }
+  .avatar-voice {
+    transform: none;
+    transition: none;
+  }
+}
