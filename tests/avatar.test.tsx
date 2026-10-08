@@ -65,10 +65,12 @@ describe("AvatarPanel playback order", () => {
     const card = container.querySelector(".avatar-3d") as HTMLElement;
     level?.(0.05);
     expect(card.dataset.mouth).toBe("0");
-    level?.(0.2);
+    level?.(0.12);
     expect(card.dataset.mouth).toBe("1");
+    level?.(0.3);
+    expect(card.dataset.mouth).toBe("3");
     level?.(0.7);
-    expect(card.dataset.mouth).toBe("2");
+    expect(card.dataset.mouth).toBe("4");
     expect(card.style.getPropertyValue("--lvl")).toBe("0.700");
   });
 

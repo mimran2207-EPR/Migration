@@ -85,11 +85,16 @@ body {
 
 /* Frame 0 (closed mouth) always shows; half/open frames overlay it by voice level. */
 .avatar-frame.mouth-1,
-.avatar-frame.mouth-2 {
+.avatar-frame.mouth-2,
+.avatar-frame.mouth-3,
+.avatar-frame.mouth-4 {
   opacity: 0;
+  transition: opacity 90ms linear; /* cross-fade between mouth positions, no hard cuts */
 }
 .avatar-3d[data-mouth="1"] .mouth-1,
-.avatar-3d[data-mouth="2"] .mouth-2 {
+.avatar-3d[data-mouth="2"] .mouth-2,
+.avatar-3d[data-mouth="3"] .mouth-3,
+.avatar-3d[data-mouth="4"] .mouth-4 {
   opacity: 1;
 }
 

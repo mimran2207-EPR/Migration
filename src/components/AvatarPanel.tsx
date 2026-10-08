@@ -23,9 +23,10 @@ interface Props {
 // step only) followed by narration → narration of the script.
 type Phase = "step-video" | "intro-video" | "narration";
 
-// Mouth frame for a 0..1 voice level: closed / half-open / open.
-function mouthFor(level: number): "0" | "1" | "2" {
-  return level < 0.12 ? "0" : level < 0.34 ? "1" : "2";
+// Mouth frame (0 = closed … 4 = wide open) for a 0..1 voice level.
+const MOUTH_STEPS = [0.08, 0.16, 0.26, 0.4];
+function mouthFor(level: number): string {
+  return String(MOUTH_STEPS.filter((t) => level >= t).length);
 }
 
 // Floating 3D presenter card that sits on the screenshot. While narrating, the voice

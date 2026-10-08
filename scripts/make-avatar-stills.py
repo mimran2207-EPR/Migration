@@ -1,9 +1,9 @@
-"""Build the presenter stills (public/avatar/fig-0/1/2.webp) from one full-body image on black.
+"""Build the presenter stills (public/avatar/fig-0…4.webp) from one full-body image on black.
 
   python scripts/make-avatar-stills.py <image> --mouth X,Y,W
 
-fig-0 is the image as is (mouth closed); fig-1 / fig-2 paint a half-open / open mouth centred at
-X,Y (pixels in the source image) with width W. The site swaps them by voice level (lip movement).
+fig-0 is the image as is (mouth closed); fig-1…4 open the mouth step by step by lowering the jaw
+around X,Y (the line between the lips, in source pixels; W = mouth width). The site swaps them by voice level (lip movement).
 The black background connected to the frame edges becomes transparent; the figure is placed in a
 540×960 frame, head at the top, like the previous stills.
 Requires: pip install pillow opencv-python-headless numpy
@@ -35,20 +35,30 @@ def alpha_mask(rgb: np.ndarray, threshold: int = 28) -> np.ndarray:
     return cv2.GaussianBlur(alpha, (3, 3), 0)  # soften the cut edge
 
 
-def open_mouth(img: Image.Image, x: int, y: int, w: int, opening: float) -> Image.Image:
-    """Paint a dark mouth opening (height = opening × width) with a soft edge over the lips."""
-    if opening <= 0:
+def open_mouth(img: Image.Image, x: int, y: int, w: int, drop: float) -> Image.Image:
+    """Open the mouth by lowering the jaw `drop` pixels: the lower lip, chin and beard are warped
+    down smoothly (no pasted shape), and the gap between the lips shows the mouth's dark inside."""
+    if drop <= 0:
         return img
-    h = max(2, int(w * opening))
-    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
-    d = ImageDraw.Draw(layer)
-    d.ellipse([x - w // 2, y - h // 2, x + w // 2, y + h // 2], fill=(58, 22, 24, 255))
-    # a hint of upper teeth on the wider opening
-    if opening > 0.12:
-        d.rectangle([x - w // 4, y - h // 2 + 1, x + w // 4, y - h // 2 + max(2, h // 4)], fill=(232, 226, 220, 255))
-        d.ellipse([x - w // 2, y - h // 2, x + w // 2, y + h // 2], outline=(58, 22, 24, 255), width=2)
-    layer = layer.filter(ImageFilter.GaussianBlur(1.2))
-    return Image.alpha_composite(img.convert("RGBA"), layer)
+    src = np.array(img.convert("RGB")).astype(np.float32)
+    H, W = src.shape[:2]
+    jaw_w, jaw_h = 1.35 * w, 1.15 * w  # area of the face that moves with the jaw
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    fx = np.clip(1 - ((xx - x) / jaw_w) ** 2, 0, 1) ** 1.5
+    t = (yy - y) / jaw_h
+    fy = np.where(t < 0, 0, np.where(t < 0.7, 1.0, np.clip(1 - (t - 0.7) / 0.3, 0, 1)))
+    shift = drop * fx * fy
+    map_y = (yy - shift).astype(np.float32)
+    out = cv2.remap(src, xx, map_y, interpolation=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
+
+    # mouth cavity between the upper lip (fixed) and the lowered lower lip
+    gap = drop * np.clip(1 - ((xx - x) / (w / 2)) ** 2, 0, 1) ** 0.8
+    inside = (yy >= y - 1) & (yy < y - 1 + gap)
+    depth = np.clip((yy - y + 1) / np.maximum(gap, 1), 0, 1)
+    dark = np.stack([40 + 30 * depth, 16 + 10 * depth, 18 + 10 * depth], axis=-1)  # dark red throat
+    mask = cv2.GaussianBlur(inside.astype(np.float32), (0, 0), 0.9)[..., None]
+    out = out * (1 - mask) + dark * mask
+    return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
 
 
 def frame(img: Image.Image, alpha: np.ndarray) -> Image.Image:
@@ -71,8 +81,9 @@ def main() -> None:
     x, y, w = (int(v) for v in a.mouth.split(","))
     src = Image.open(a.image).convert("RGB")
     alpha = alpha_mask(np.array(src))
-    for i, opening in enumerate((0.0, 0.1, 0.22)):
-        out = frame(open_mouth(src, x, y, w, opening), alpha)
+    # 5 mouth positions, from closed to wide open (jaw drop in source pixels, relative to mouth width)
+    for i, drop in enumerate((0, 0.05, 0.1, 0.15, 0.21)):
+        out = frame(open_mouth(src, x, y, w, drop * w), alpha)
         path = ROOT / "public" / "avatar" / f"fig-{i}.webp"
         out.save(path, "WEBP", quality=90)
         print(path.name, out.size)

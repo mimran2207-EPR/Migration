@@ -1,8 +1,8 @@
 import { MODULE_INTROS, STEP_VIDEOS } from "../content/videos";
 
 // Media locations (files live under /public).
-// Same pose with closed / half-open / open mouth; swapped by voice level for lip movement.
-export const TALK_FRAMES = ["/avatar/fig-0.webp", "/avatar/fig-1.webp", "/avatar/fig-2.webp"];
+// Same pose, mouth from closed (0) to wide open (4); swapped by voice level for lip movement.
+export const TALK_FRAMES = [0, 1, 2, 3, 4].map((i) => `/avatar/fig-${i}.webp`);
 
 export function screenUrl(id: string): string {
   return `/screens/${id}.jpg`;
