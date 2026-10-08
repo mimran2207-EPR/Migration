@@ -3,6 +3,7 @@ import type { Module, Step } from "../content/types";
 import { screenUrl } from "../lib/media";
 import KaraokeText from "./KaraokeText";
 import { DOWNLOADS } from "../content/downloads";
+import { stepLabel } from "../content/label";
 
 interface Props {
   module: Module;
@@ -111,7 +112,7 @@ export default function StepStage({ module, step, focusTitle = false, activeWord
     <section aria-labelledby="step-title" className="rounded-2xl bg-white p-3 shadow-sm md:p-4">
       <div className="mb-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <span className="rounded-full bg-[#4338ca]/10 px-3 py-0.5 text-xs font-medium text-[#4338ca]">
-          {module.icon} {module.title} · שלב {step.id}
+          {module.icon} {module.title} · שלב {stepLabel(step.id)}
         </span>
         <h2 id="step-title" ref={titleRef} tabIndex={-1} className="text-xl focus:outline-none font-bold text-slate-800 md:text-2xl">
           {step.title}

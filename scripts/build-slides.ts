@@ -9,6 +9,7 @@ import { pathToFileURL } from "node:url";
 import { chromium } from "playwright-core";
 import { modules } from "../src/content/lessons";
 import { SLIDES, type Item, type Slide } from "../slides/slides";
+import { stepLabel } from "../src/content/label";
 
 const W = 1600;
 const H = 900;
@@ -98,7 +99,7 @@ function page(moduleTitle: string, icon: string, stepId: string, title: string, 
   footer{display:flex;justify-content:space-between;color:#94a3b8;font-size:20px;margin-top:24px}
 </style></head><body>
 <main>${body(s)}${s.note ? `<div class="note">${esc(s.note)}</div>` : ""}</main>
-<footer><span>EPR מערכות · מעבר מאקסס ל־WEB</span><span>שלב ${stepId}</span></footer>
+<footer><span>EPR מערכות · מעבר מאקסס ל־WEB</span><span>שלב ${stepLabel(stepId)}</span></footer>
 </body></html>`;
 }
 

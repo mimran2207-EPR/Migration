@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import type { Module } from "../content/types";
+import { stepLabel } from "../content/label";
 
 interface Props {
   modules: Module[];
@@ -80,7 +81,7 @@ export default function ModuleNav({ modules, currentId, done, open, onSelect, on
                             }`}
                             aria-hidden="true"
                           >
-                            {isDone ? "✓" : s.id}
+                            {isDone ? "✓" : stepLabel(s.id)}
                           </span>
                           <span className="flex-1">{s.title}</span>
                           {isDone && <span className="sr-only">(הושלם)</span>}

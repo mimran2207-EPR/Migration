@@ -1,4 +1,5 @@
 import type { Module } from "../content/types";
+import { stepLabel } from "../content/label";
 
 interface Props {
   modules: Module[];
@@ -75,7 +76,7 @@ export default function ProcessStepper({ modules, currentId, done, onSelect }: P
                   type="button"
                   onClick={() => onSelect(s.id)}
                   aria-current={isCur ? "step" : undefined}
-                  aria-label={`שלב ${s.id}: ${s.title}`}
+                  aria-label={`שלב ${stepLabel(s.id)}: ${s.title}`}
                   title={s.title}
                   className={`flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold transition hover:scale-110 focus-visible:outline-2 focus-visible:outline-[#4338ca] ${
                     isCur
