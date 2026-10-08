@@ -131,8 +131,8 @@ body {
   .presenter-slot .avatar-media {
     object-fit: cover;
     object-position: 50% 0%;
-    transform: scale(2.3);
-    transform-origin: 51% 9%;
+    transform: scale(2.6);
+    transform-origin: 42% 19%;
   }
   .presenter-slot .avatar-tag {
     display: none;
