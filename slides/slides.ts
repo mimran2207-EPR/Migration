@@ -522,16 +522,14 @@ export const SLIDES: Record<string, Slide> = {
   },
   "12.5": { kind: "arch", box: "stack" },
 
-  // ---- the joker module: the golden slide (docs/golden-slide/golden-slide.html) ----
-  "13.1": { kind: "golden", targets: ["b-user", "arrow-1"] },
+  // ---- module 13 (the joker): docs/golden-slide/golden-slide.html and golden-layers.html ----
+  "13.1": { kind: "golden", targets: ["arrow-1", "arrow-2", "arrow-3", "arrow-5", "b-iis", "b-sql"] },
   "13.2": { kind: "golden", targets: ["b-angular", "b-bff", "b-billing"] },
   "13.3": { kind: "golden", targets: ["arrow-1", "arrow-2", "arrow-3", "arrow-4", "arrow-5", "b-billing", "b-control", "b-sql"] },
   "13.4": { kind: "golden", targets: ["b-bff"] },
-  "13.5": { kind: "golden", targets: ["arrow-6", "arrow-7", "arrow-8", "arrow-9", "arrow-10", "b-queue", "b-worker"] },
-  "13.6": { kind: "golden", targets: ["arrow-11", "arrow-12", "b-status"] },
-  "13.7": { kind: "golden", targets: ["arrow-14", "b-legacy", "b-sql"] },
-  "13.8": { kind: "golden", targets: ["b-support"] },
-  "13.9": {
+  "13.5": { kind: "golden", targets: ["arrow-6", "arrow-7", "arrow-8", "arrow-9", "arrow-10", "arrow-11", "arrow-12", "b-queue", "b-worker", "b-status"] },
+  "13.6": { kind: "golden", targets: ["arrow-14", "b-legacy", "b-iis", "b-sql"] },
+  "13.7": {
     kind: "table",
     hl: 1,
     head: ["עמודה בטבלה", "מה כותבים בה"],
@@ -544,63 +542,9 @@ export const SLIDES: Record<string, Slide> = {
     ],
     note: "רשות מהזהות · מזהה מעקב בכל בקשה · בלי פעולה כפולה",
   },
+  "13.8": { kind: "golden", doc: "layers", targets: ["layers"] },
+  "13.9": { kind: "golden", doc: "layers", targets: ["L-dblogic", "L-data-m"] },
   "13.10": {
-    kind: "flow",
-    hl: 2,
-    items: [
-      { icon: "📝", title: "הגדרת התנהגות", text: "דוגמאות אמיתיות מאקסס" },
-      { icon: "✂️", title: "משימה קטנה", text: "אחת בכל פעם" },
-      { icon: "🤖", title: "ה-AI בונה", text: "הקשר + מה אסור" },
-      { icon: "✅", title: "אתם בודקים", text: "בדפדפן, לפי רשימה" },
-      { icon: "🏛️", title: "ארכיטקט מחליט", text: "כל שאלה פתוחה" },
-    ],
-  },
-  "13.11": {
-    kind: "table",
-    hl: 4,
-    head: ["משימה", "מה מוכיחים"],
-    rows: [
-      ["0 · תיעוד ההתנהגות", "מה קורה היום באקסס"],
-      ["1–2 · שלד מדומה + בדיקות", "מסך ← BFF ← שירות, כללים נכונים"],
-      ["3 · מסד בדיקה, קריאה בלבד", "אותם נתונים כמו באקסס"],
-      ["4 · הזדהות ורשות", "רשות אחרת חסומה"],
-      ["5–6 · ברקע: מדומה ← אמיתי", "באמת עובד מקצה לקצה"],
-      ["7 · מתג לרשות הניסוי", "אפשר לחזור לאקסס"],
-    ],
-  },
-  "13.12": {
-    kind: "compare",
-    hl: 0,
-    left: { title: "מבקשים", items: ["מסך חיפוש + BFF + שירות", "5 חייבים מדומים", "מזהה מעקב בכל בקשה", "הוראות הפעלה + רשימת בדיקה"] },
-    right: { title: "אוסרים", items: ["מסד אמיתי או ענן", "סיסמאות בקוד", "רכיבים נוספים (תור, S3)", "החלפת טכנולוגיות בלי לשאול"] },
-  },
-  "13.13": {
-    kind: "cards",
-    cols: 2,
-    hl: 1,
-    items: [
-      { icon: "🚪", title: "שני BFF?", text: "רכיב אחד או שניים" },
-      { icon: "🔔", title: "סטטוס למסך", text: "איפה נשמר ואיך מגיע" },
-      { icon: "📬", title: "מה עובר בתור", text: "ומה ישירות לשירות" },
-      { icon: "🧭", title: "Control Plane", text: "מה נשמר בו בדיוק" },
-      { icon: "🗄️", title: "מסדי הרשויות", text: "איפה, ואיך מגיעים ברשת" },
-      { icon: "🔐", title: "הזדהות ומעבר", text: "שיטה · מערכת רושמת" },
-    ],
-  },
-
-  // ---- module 13, second half: the golden slide broken into layers (docs/golden-slide/golden-layers.html) ----
-  "13.14": { kind: "golden", targets: ["arrow-1", "arrow-2", "arrow-3", "arrow-5", "b-iis", "b-sql"] },
-  "13.15": { kind: "golden", doc: "layers", targets: ["layers"] },
-  "13.16": { kind: "golden", doc: "layers", targets: ["L-screen", "L-service-m"] },
-  "13.17": { kind: "golden", doc: "layers", targets: ["L-dblogic", "L-dblogic-m"] },
-  "13.18": {
-    kind: "compare",
-    hl: 0,
-    left: { title: "קוראים לפרוצדורה הקיימת", items: ["אקסס וה-Web מתנהגים אותו דבר", "הטריגרים והכללים הקיימים פועלים", "ברירת המחדל בתקופת המעבר", "הכלל נשאר במסד, באחריות ה-DBA"] },
-    right: { title: "כותבים את הכלל מחדש בשירות", items: ["בדיקות אוטומטיות ושליטה מלאה", "חייבים להוכיח תוצאה זהה", "מתאים לגל 3, אחרי המעבר", "החלטה: ארכיטקט + בעל המסד"] },
-  },
-  "13.19": { kind: "golden", doc: "layers", targets: ["L-hosting", "L-hosting-m"] },
-  "13.20": {
     kind: "flow",
     hl: 2,
     items: [
@@ -612,10 +556,9 @@ export const SLIDES: Record<string, Slide> = {
     ],
     note: "שומרים את הגרסה הקודמת · סיסמאות בהגדרות השרת, לא בקבצים · אירוח בתקופת המעבר: לאמת מול הארכיטקט",
   },
-  "13.21": { kind: "golden", doc: "layers", targets: ["col-owner", "L-ops-o"] },
-  "13.22": { kind: "golden", doc: "layers", targets: ["col-ai", "L-ops-a"] },
-  "13.23": { kind: "golden", doc: "layers", targets: ["L-life"] },
-  "13.24": {
+  "13.11": { kind: "golden", doc: "layers", targets: ["col-owner", "L-ops-a"] },
+  "13.12": { kind: "golden", doc: "layers", targets: ["L-life"] },
+  "13.13": {
     kind: "cards",
     cols: 3,
     hl: 1,
@@ -628,20 +571,40 @@ export const SLIDES: Record<string, Slide> = {
       { icon: "🔄", title: "עדכוני גרסאות", text: "Angular ו-.NET, פעם ברבעון" },
     ],
   },
-  "13.25": {
+  "13.14": {
     kind: "table",
-    hl: 0,
+    hl: 1,
     head: ["מדרגה", "מה מוכיחים לפני שעולים"],
     rows: [
-      ["1 · קריאה בלבד (היום)", "אותם נתונים כמו באקסס"],
-      ["2 · כתיבה למסד בדיקה", "הפעולה עובדת, בלי נזק"],
-      ["3 · דרך פרוצדורה קיימת", "הטריגרים והכללים של אקסס פועלים"],
-      ["4 · בלי כפילות + תיעוד", "פעולה לא מתבצעת פעמיים; ידוע מי עשה מה"],
-      ["5 · מתג לרשות ניסוי", "אפשר לכבות ולחזור לאקסס"],
-      ["6 · ייצור", "אישור בכתב: ארכיטקט, DBA, בעל המערכת"],
+      ["0–1 · תיעוד + שלד מדומה", "ההתנהגות באקסס; מסך ← BFF ← שירות"],
+      ["2 · קריאה בלבד (היום)", "אותם נתונים כמו באקסס"],
+      ["3 · כתיבה למסד בדיקה", "הפעולה עובדת, בלי נזק"],
+      ["4 · דרך פרוצדורה קיימת", "הטריגרים והכללים של אקסס פועלים"],
+      ["5 · הזדהות + בלי כפילות", "רשות אחרת חסומה; פעולה לא מתבצעת פעמיים"],
+      ["6 · מתג לרשות ניסוי", "אפשר לכבות ולחזור לאקסס"],
+      ["7 · ייצור", "אישור בכתב: ארכיטקט, DBA, בעל המערכת"],
     ],
   },
-  "13.26": {
+  "13.15": {
+    kind: "compare",
+    hl: 0,
+    left: { title: "מבקשים", items: ["מסך חיפוש + BFF + שירות", "5 חייבים מדומים", "מזהה מעקב בכל בקשה", "הוראות הפעלה + רשימת בדיקה"] },
+    right: { title: "אוסרים", items: ["מסד אמיתי או ענן", "סיסמאות בקוד", "רכיבים נוספים (תור, S3)", "החלפת טכנולוגיות בלי לשאול"] },
+  },
+  "13.16": {
+    kind: "cards",
+    cols: 2,
+    hl: 1,
+    items: [
+      { icon: "🚪", title: "שני BFF?", text: "רכיב אחד או שניים" },
+      { icon: "🔔", title: "סטטוס למסך", text: "איפה נשמר ואיך מגיע" },
+      { icon: "📬", title: "מה עובר בתור", text: "ומה ישירות לשירות" },
+      { icon: "🧭", title: "Control Plane", text: "מה נשמר בו בדיוק" },
+      { icon: "🗄️", title: "מסדי הרשויות", text: "איפה, ואיך מגיעים ברשת" },
+      { icon: "🔐", title: "הזדהות ומעבר", text: "שיטה · מערכת רושמת" },
+    ],
+  },
+  "13.17": {
     kind: "table",
     hl: 3,
     head: ["שכבה", "מצב בכרטיס המשלם"],
