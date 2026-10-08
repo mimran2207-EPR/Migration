@@ -5,6 +5,7 @@
 export type Item = { icon?: string; title: string; text?: string; tag?: string };
 export type Slide =
   | { kind: "arch"; box: string; note?: string }
+  | { kind: "golden"; targets: string[]; note?: string }
   | { kind: "cards"; items: Item[]; cols?: number; hl?: number; note?: string }
   | { kind: "flow"; items: Item[]; hl?: number; note?: string }
   | { kind: "stats"; items: { value: string; label: string; sub?: string }[]; hl?: number; note?: string }
@@ -520,4 +521,70 @@ export const SLIDES: Record<string, Slide> = {
     ],
   },
   "12.5": { kind: "arch", box: "stack" },
+
+  // ---- the joker module: the golden slide (docs/golden-slide/golden-slide.html) ----
+  "13.1": { kind: "golden", targets: ["b-user", "arrow-1"] },
+  "13.2": { kind: "golden", targets: ["b-angular", "b-bff", "b-billing"] },
+  "13.3": { kind: "golden", targets: ["arrow-1", "arrow-2", "arrow-3", "arrow-4", "arrow-5", "b-billing", "b-control", "b-sql"] },
+  "13.4": { kind: "golden", targets: ["b-bff"] },
+  "13.5": { kind: "golden", targets: ["arrow-6", "arrow-7", "arrow-8", "arrow-9", "arrow-10", "b-queue", "b-worker"] },
+  "13.6": { kind: "golden", targets: ["arrow-11", "arrow-12", "b-status"] },
+  "13.7": { kind: "golden", targets: ["arrow-14", "b-legacy", "b-sql"] },
+  "13.8": { kind: "golden", targets: ["b-support"] },
+  "13.9": {
+    kind: "table",
+    hl: 1,
+    head: ["עמודה בטבלה", "מה כותבים בה"],
+    rows: [
+      ["חץ ופעולה עסקית", "2 · חיפוש חייב"],
+      ["מה בונים", "מסך · BFF · שירות · תשתית"],
+      ["חוזה המידע", "GET /api/payers?query= → רשימה"],
+      ["איך בודקים", "בלי הזדהות — נדחה; עם — רשימה"],
+      ["פתוח", "שיטת ההזדהות — לארכיטקט"],
+    ],
+    note: "רשות מהזהות · מזהה מעקב בכל בקשה · בלי פעולה כפולה",
+  },
+  "13.10": {
+    kind: "flow",
+    hl: 2,
+    items: [
+      { icon: "📝", title: "הגדרת התנהגות", text: "דוגמאות אמיתיות מאקסס" },
+      { icon: "✂️", title: "משימה קטנה", text: "אחת בכל פעם" },
+      { icon: "🤖", title: "ה-AI בונה", text: "הקשר + מה אסור" },
+      { icon: "✅", title: "אתם בודקים", text: "בדפדפן, לפי רשימה" },
+      { icon: "🏛️", title: "ארכיטקט מחליט", text: "כל שאלה פתוחה" },
+    ],
+  },
+  "13.11": {
+    kind: "table",
+    hl: 4,
+    head: ["משימה", "מה מוכיחים"],
+    rows: [
+      ["0 · תיעוד ההתנהגות", "מה קורה היום באקסס"],
+      ["1–2 · שלד מדומה + בדיקות", "מסך ← BFF ← שירות, כללים נכונים"],
+      ["3 · מסד בדיקה, קריאה בלבד", "אותם נתונים כמו באקסס"],
+      ["4 · הזדהות ורשות", "רשות אחרת חסומה"],
+      ["5–6 · ברקע: מדומה ← אמיתי", "באמת עובד מקצה לקצה"],
+      ["7 · מתג לרשות הניסוי", "אפשר לחזור לאקסס"],
+    ],
+  },
+  "13.12": {
+    kind: "compare",
+    hl: 0,
+    left: { title: "מבקשים", items: ["מסך חיפוש + BFF + שירות", "5 חייבים מדומים", "מזהה מעקב בכל בקשה", "הוראות הפעלה + רשימת בדיקה"] },
+    right: { title: "אוסרים", items: ["מסד אמיתי או ענן", "סיסמאות בקוד", "רכיבים נוספים (תור, S3)", "החלפת טכנולוגיות בלי לשאול"] },
+  },
+  "13.13": {
+    kind: "cards",
+    cols: 2,
+    hl: 1,
+    items: [
+      { icon: "🚪", title: "שני BFF?", text: "רכיב אחד או שניים" },
+      { icon: "🔔", title: "סטטוס למסך", text: "איפה נשמר ואיך מגיע" },
+      { icon: "📬", title: "מה עובר בתור", text: "ומה ישירות לשירות" },
+      { icon: "🧭", title: "Control Plane", text: "מה נשמר בו בדיוק" },
+      { icon: "🗄️", title: "מסדי הרשויות", text: "איפה, ואיך מגיעים ברשת" },
+      { icon: "🔐", title: "הזדהות ומעבר", text: "שיטה · מערכת רושמת" },
+    ],
+  },
 };

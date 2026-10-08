@@ -12,8 +12,8 @@ test("every step has a Hebrew script of 20-90 words", () => {
     expect(s.script).toMatch(/[֐-׿]/);
   });
 });
-test("13 modules, findStep works", () => {
-  expect(modules).toHaveLength(13);
+test("14 modules, findStep works", () => {
+  expect(modules).toHaveLength(14);
   expect(findStep("4.5")?.module.id).toBe("4");
   expect(findStep("99.9")).toBeUndefined();
 });
@@ -33,6 +33,7 @@ test("exact ordered list of step ids", () => {
     "10.1", "10.2", "10.3", "10.4", "10.5",
     "11.1", "11.2", "11.3", "11.4", "11.5", "11.6",
     "12.1", "12.2", "12.3", "12.4", "12.5",
+    "13.1", "13.2", "13.3", "13.4", "13.5", "13.6", "13.7", "13.8", "13.9", "13.10", "13.11", "13.12", "13.13",
   ]);
 });
 
@@ -41,7 +42,7 @@ test("every step has a highlight from its slide", () => {
 });
 
 test("warnings on the steps that correct common misreadings of the workbook", () => {
-  expect(allSteps.filter(s => s.warning).map(s => s.id)).toEqual(["1.3", "2.4", "3.2", "4.2", "5.4", "8.4", "9.12"]);
+  expect(allSteps.filter(s => s.warning).map(s => s.id)).toEqual(["1.3", "2.4", "3.2", "4.2", "5.4", "8.4", "9.12", "13.4", "13.10"]);
 });
 
 it.each(allSteps)("step $id: Hebrew script of 20-90 words, highlight inside the screen", (s) => {

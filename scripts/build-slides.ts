@@ -4,6 +4,8 @@
 //   npm run slides -- 2.3 5.1 only these
 import { copyFileSync, writeFileSync, existsSync } from "node:fs";
 import { ARCH_BOXES, ARCH_SIZE } from "../slides/architecture-boxes";
+import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright-core";
 import { modules } from "../src/content/lessons";
 import { SLIDES, type Item, type Slide } from "../slides/slides";
@@ -33,6 +35,7 @@ function card(it: Item, cls: string) {
 function body(s: Slide): string {
   switch (s.kind) {
     case "arch":
+    case "golden":
       return "";
     case "cards":
       return `<div class="grid" style="grid-template-columns:repeat(${s.cols ?? 3},1fr)">${s.items.map((it, i) => card(it, hl(i, s.hl))).join("")}</div>`;
@@ -105,10 +108,31 @@ async function main() {
   const browser = await chromium.launch({ executablePath: CHROME });
   const tab = await browser.newPage({ viewport: { width: W, height: H } });
   const boxes: Record<string, { x: number; y: number; w: number; h: number }> = {};
+  let golden: import("playwright-core").Page | undefined;
   for (const m of modules) {
     for (const st of m.steps) {
       const s = SLIDES[st.id];
       if (!s) throw new Error(`no slide for ${st.id}`);
+      if (s.kind === "golden") {
+        // the golden slide itself (docs/golden-slide/golden-slide.html); highlight = union of its elements
+        if (!golden) {
+          golden = await browser.newPage({ viewport: { width: W, height: H } });
+          await golden.goto(pathToFileURL(resolve("docs/golden-slide/golden-slide.html")).href, { waitUntil: "networkidle" });
+          await golden.evaluate(() => document.fonts.ready);
+          await golden.screenshot({ path: "slides/golden.jpg", type: "jpeg", quality: 90 });
+        }
+        const r = await golden.evaluate((ids: string[]) => {
+          const rs = ids.map((id) => document.getElementById(id)!.getBoundingClientRect());
+          const l = Math.min(...rs.map((b) => b.left)), t = Math.min(...rs.map((b) => b.top));
+          return { l, t, r: Math.max(...rs.map((b) => b.right)), b: Math.max(...rs.map((b) => b.bottom)) };
+        }, s.targets);
+        const p = (v: number, d: number) => Math.round((v / d) * 1000) / 10;
+        const [a, b] = [Math.max(0, r.l - 8), Math.max(0, r.t - 8)];
+        const [c, d] = [Math.min(W, r.r + 8), Math.min(H, r.b + 8)];
+        boxes[st.id] = { x: p(a, W), y: p(b, H), w: p(c - a, W), h: p(d - b, H) };
+        if (!only.length || only.includes(st.id)) copyFileSync("slides/golden.jpg", `public/screens/${st.id}.jpg`);
+        continue;
+      }
       if (s.kind === "arch") {
         // the architecture diagram itself, with the component's region as the highlight
         const [x1, y1, x2, y2] = ARCH_BOXES[s.box];
