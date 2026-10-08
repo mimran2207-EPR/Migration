@@ -44,20 +44,31 @@ def open_mouth(img: Image.Image, x: int, y: int, w: int, drop: float) -> Image.I
     H, W = src.shape[:2]
     jaw_w, jaw_h = 1.35 * w, 1.15 * w  # area of the face that moves with the jaw
     yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
-    fx = np.clip(1 - ((xx - x) / jaw_w) ** 2, 0, 1) ** 1.5
     t = (yy - y) / jaw_h
+    # near the lips only the mouth's width moves (corners stay put); lower down the whole jaw moves
+    hw = 0.44 * w + (jaw_w - 0.44 * w) * np.clip(t / 0.45, 0, 1)
+    fx = np.clip(1 - ((xx - x) / hw) ** 2, 0, 1) ** 1.5
     fy = np.where(t < 0, 0, np.where(t < 0.7, 1.0, np.clip(1 - (t - 0.7) / 0.3, 0, 1)))
     shift = drop * fx * fy
     map_y = (yy - shift).astype(np.float32)
     out = cv2.remap(src, xx, map_y, interpolation=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REFLECT)
 
-    # mouth cavity between the upper lip (fixed) and the lowered lower lip
-    gap = drop * np.clip(1 - ((xx - x) / (w / 2)) ** 2, 0, 1) ** 0.8
-    inside = (yy >= y - 1) & (yy < y - 1 + gap)
-    depth = np.clip((yy - y + 1) / np.maximum(gap, 1), 0, 1)
-    dark = np.stack([40 + 30 * depth, 16 + 10 * depth, 18 + 10 * depth], axis=-1)  # dark red throat
-    mask = cv2.GaussianBlur(inside.astype(np.float32), (0, 0), 0.9)[..., None]
-    out = out * (1 - mask) + dark * mask
+    # Mouth cavity between the upper lip (fixed) and the lowered lower lip. Its top follows the
+    # smile line (corners slightly higher), it narrows to points at the mouth corners, and its
+    # edges are feathered so it blends into the lips instead of looking cut.
+    half = 0.44 * w
+    u = np.clip((xx - x) / half, -1, 1)
+    inside_x = np.abs(xx - x) < half
+    lip_line = y - 3.5 * u**2  # smile: corners a little higher than the centre
+    gap = drop * np.clip(1 - u**2, 0, 1) ** 1.2 * inside_x
+    t = (yy - lip_line) / np.maximum(gap, 1e-3)
+    inside = (t >= 0) & (t <= 1) & (gap > 0.6)
+    depth = np.clip(t, 0, 1)[..., None]
+    top = np.array([62, 26, 30], np.float32)  # inner lip edge
+    deep = np.array([34, 12, 16], np.float32)  # throat
+    cavity = top * (1 - depth) * 0.35 + deep * (0.65 + 0.35 * depth)
+    mask = cv2.GaussianBlur(inside.astype(np.float32), (0, 0), 1.4)[..., None]
+    out = out * (1 - mask) + cavity * mask
     return Image.fromarray(np.clip(out, 0, 255).astype(np.uint8))
 
 
@@ -82,7 +93,7 @@ def main() -> None:
     src = Image.open(a.image).convert("RGB")
     alpha = alpha_mask(np.array(src))
     # 5 mouth positions, from closed to wide open (jaw drop in source pixels, relative to mouth width)
-    for i, drop in enumerate((0, 0.05, 0.1, 0.15, 0.21)):
+    for i, drop in enumerate((0, 0.045, 0.09, 0.135, 0.18)):
         out = frame(open_mouth(src, x, y, w, drop * w), alpha)
         path = ROOT / "public" / "avatar" / f"fig-{i}.webp"
         out.save(path, "WEBP", quality=90)

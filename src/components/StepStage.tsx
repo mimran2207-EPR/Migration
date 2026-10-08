@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "re
 import type { Module, Step } from "../content/types";
 import { screenUrl } from "../lib/media";
 import KaraokeText from "./KaraokeText";
+import { DOWNLOADS } from "../content/downloads";
 
 interface Props {
   module: Module;
@@ -115,6 +116,15 @@ export default function StepStage({ module, step, focusTitle = false, activeWord
         <h2 id="step-title" ref={titleRef} tabIndex={-1} className="text-xl focus:outline-none font-bold text-slate-800 md:text-2xl">
           {step.title}
         </h2>
+        {DOWNLOADS[step.id] && (
+          <a
+            href={`/pdf/${DOWNLOADS[step.id]}.pdf`}
+            download
+            className="ms-auto rounded-full bg-white px-3 py-1 text-xs font-medium text-[#4338ca] shadow-sm ring-1 ring-slate-200 hover:bg-slate-50"
+          >
+            ⬇ הורדת התרשים (PDF)
+          </a>
+        )}
       </div>
 
       {/* Width is capped from viewport height so image + ring scale together (keeps % coords exact). */}
