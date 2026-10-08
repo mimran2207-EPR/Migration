@@ -588,19 +588,19 @@ export const SLIDES: Record<string, Slide> = {
     ],
   },
 
-  // ---- module 14: the golden slide broken into layers (docs/golden-slide/golden-layers.html) ----
-  "14.1": { kind: "golden", targets: ["arrow-1", "arrow-2", "arrow-3", "arrow-5", "b-iis", "b-sql"] },
-  "14.2": { kind: "golden", doc: "layers", targets: ["layers"] },
-  "14.3": { kind: "golden", doc: "layers", targets: ["L-screen", "L-service-m"] },
-  "14.4": { kind: "golden", doc: "layers", targets: ["L-dblogic", "L-dblogic-m"] },
-  "14.5": {
+  // ---- module 13, second half: the golden slide broken into layers (docs/golden-slide/golden-layers.html) ----
+  "13.14": { kind: "golden", targets: ["arrow-1", "arrow-2", "arrow-3", "arrow-5", "b-iis", "b-sql"] },
+  "13.15": { kind: "golden", doc: "layers", targets: ["layers"] },
+  "13.16": { kind: "golden", doc: "layers", targets: ["L-screen", "L-service-m"] },
+  "13.17": { kind: "golden", doc: "layers", targets: ["L-dblogic", "L-dblogic-m"] },
+  "13.18": {
     kind: "compare",
     hl: 0,
     left: { title: "קוראים לפרוצדורה הקיימת", items: ["אקסס וה-Web מתנהגים אותו דבר", "הטריגרים והכללים הקיימים פועלים", "ברירת המחדל בתקופת המעבר", "הכלל נשאר במסד, באחריות ה-DBA"] },
     right: { title: "כותבים את הכלל מחדש בשירות", items: ["בדיקות אוטומטיות ושליטה מלאה", "חייבים להוכיח תוצאה זהה", "מתאים לגל 3, אחרי המעבר", "החלטה: ארכיטקט + בעל המסד"] },
   },
-  "14.6": { kind: "golden", doc: "layers", targets: ["L-hosting", "L-hosting-m"] },
-  "14.7": {
+  "13.19": { kind: "golden", doc: "layers", targets: ["L-hosting", "L-hosting-m"] },
+  "13.20": {
     kind: "flow",
     hl: 2,
     items: [
@@ -612,10 +612,10 @@ export const SLIDES: Record<string, Slide> = {
     ],
     note: "שומרים את הגרסה הקודמת · סיסמאות בהגדרות השרת, לא בקבצים · אירוח בתקופת המעבר: לאמת מול הארכיטקט",
   },
-  "14.8": { kind: "golden", doc: "layers", targets: ["col-owner", "L-ops-o"] },
-  "14.9": { kind: "golden", doc: "layers", targets: ["col-ai", "L-ops-a"] },
-  "14.10": { kind: "golden", doc: "layers", targets: ["L-life"] },
-  "14.11": {
+  "13.21": { kind: "golden", doc: "layers", targets: ["col-owner", "L-ops-o"] },
+  "13.22": { kind: "golden", doc: "layers", targets: ["col-ai", "L-ops-a"] },
+  "13.23": { kind: "golden", doc: "layers", targets: ["L-life"] },
+  "13.24": {
     kind: "cards",
     cols: 3,
     hl: 1,
@@ -628,7 +628,7 @@ export const SLIDES: Record<string, Slide> = {
       { icon: "🔄", title: "עדכוני גרסאות", text: "Angular ו-.NET, פעם ברבעון" },
     ],
   },
-  "14.12": {
+  "13.25": {
     kind: "table",
     hl: 0,
     head: ["מדרגה", "מה מוכיחים לפני שעולים"],
@@ -641,7 +641,7 @@ export const SLIDES: Record<string, Slide> = {
       ["6 · ייצור", "אישור בכתב: ארכיטקט, DBA, בעל המערכת"],
     ],
   },
-  "14.13": {
+  "13.26": {
     kind: "table",
     hl: 3,
     head: ["שכבה", "מצב בכרטיס המשלם"],

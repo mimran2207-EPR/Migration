@@ -1,4 +1,5 @@
 import type { Module } from "./types";
+import { layersSteps } from "./layers";
 
 // Architecture deep-dive: every component of the "Legacy → Target" diagram (slides/architecture.jpg),
 // what it is, how it works and what it does in our processes; then core principles, end-to-end
@@ -304,7 +305,7 @@ export const architectureModules: Module[] = [
     id: "13",
     title: "שלב הג'וקר — לפתח עם AI",
     icon: "🃏",
-    intro: "השלב החשוב ביותר: איך אתם, בלי רקע בפיתוח, מובילים את הבנייה בעזרת בינה מלאכותית.",
+    intro: "השלב החשוב ביותר: איך אתם, בלי רקע בפיתוח, מובילים את הבנייה בעזרת בינה מלאכותית — ואיך מפרקים את שקף הזהב לשכבות, אחריות ותחזוקה.",
     steps: [
       {
         id: "13.1",
@@ -388,6 +389,7 @@ export const architectureModules: Module[] = [
         script:
           "לפני שממשיכים, עשר שאלות לארכיטקט. החשובות: האם שני ה-BFF הם רכיב אחד, איך מגיע סטטוס של פעולה ארוכה למסך, אילו פעולות עוברות בתור, מה נשמר במישור הבקרה, איפה יושבים מסדי הרשויות ואיך מגיעים אליהם, איזו הזדהות, ומי המערכת הרושמת בתקופת המעבר.",
       },
+      ...layersSteps,
     ],
   },
 ];

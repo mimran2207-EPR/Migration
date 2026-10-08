@@ -1,7 +1,6 @@
 import type { Module, Step } from "./types";
 import { HIGHLIGHTS } from "./highlights";
 import { architectureModules } from "./architecture";
-import { layersModules } from "./layers";
 
 export type { Highlight, Module, Step } from "./types";
 
@@ -294,7 +293,7 @@ const content: Module[] = [
   },
 ];
 
-export const modules: Module[] = [...content, ...architectureModules, ...layersModules].map((m) => ({
+export const modules: Module[] = [...content, ...architectureModules].map((m) => ({
   ...m,
   steps: m.steps.map((s): Step => (HIGHLIGHTS[s.id] ? { ...s, highlight: HIGHLIGHTS[s.id] } : s)),
 }));
