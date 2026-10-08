@@ -20,6 +20,7 @@
   <defs>
     <marker id="a-plan" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4338ca"/></marker>
     <marker id="a-verify" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#d97706"/></marker>
+    <marker id="a-built" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#059669"/></marker>
     <marker id="a-undef" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#dc2626"/></marker>
     <style>
       .zone { fill:none; stroke-width:2; stroke-dasharray:8 6; rx:22; }
@@ -31,6 +32,8 @@
       .t2 { font-size:13.5px; fill:#475569; text-anchor:middle; }
       .plan { stroke:#4338ca; stroke-width:3; fill:none; marker-end:url(#a-plan); }
       .verify { stroke:#d97706; stroke-width:3; fill:none; stroke-dasharray:9 6; marker-end:url(#a-verify); }
+      .built { stroke:#059669; stroke-width:3.5; fill:none; marker-end:url(#a-built); }
+      .lbl.b { fill:#065f46; font-weight:600; }
       .undef { stroke:#dc2626; stroke-width:3; fill:none; stroke-dasharray:3 5; marker-end:url(#a-undef); }
       .num circle { stroke:#fff; stroke-width:2; }
       .num text { font-size:15px; font-weight:800; fill:#fff; text-anchor:middle; dominant-baseline:central; }
@@ -41,7 +44,7 @@
 
   <!-- title -->
   <text x="800" y="38" text-anchor="middle" font-size="28" font-weight="800" fill="#1e1b4b">שקף הזהב — "הפקת שובר לחייב" מקצה לקצה</text>
-  <text x="800" y="64" text-anchor="middle" font-size="15" fill="#b45309" font-weight="600">דוגמה להמחשה בלבד — התהליך האמיתי ייבחר מול בעלי המערכת. אין עדיין קוד בפרויקט: כל החיבורים הם תכנון או דורשים אימות.</text>
+  <text x="800" y="64" text-anchor="middle" font-size="15" fill="#b45309" font-weight="600">דוגמה להמחשה — התהליך האמיתי ייבחר מול בעלי המערכת. בירוק: מה שכבר קיים בקוד (כרטיס משלם, קריאה בלבד).</text>
 
   <!-- zones -->
   <g id="z-local"><rect class="zone" x="1235" y="85" width="350" height="290" stroke="#0891b2"/><text class="zlabel" x="1565" y="112" fill="#0e7490" text-anchor="start">מחשב המשתמש</text></g>
@@ -55,14 +58,15 @@
   <g id="b-angular"><rect class="box key" x="1290" y="250" width="270" height="100"/><text class="t1" x="1425" y="285">🌐 דפדפן · Angular</text><text class="t2" x="1425" y="310">מסכים בלבד: חיפוש, כפתור, סטטוס</text><text class="t2" x="1425" y="332">אין כללים עסקיים</text></g>
 
   <g id="b-bff"><rect class="box key" x="905" y="250" width="270" height="100"/><text class="t1" x="1040" y="282">🚪 Thin BFF</text><text class="t2" x="1040" y="306">ASP.NET Core · .NET 10</text><text class="t2" x="1040" y="328">אימות · Tenant · ניתוב — בלי לוגיקה עסקית</text></g>
-  <g id="b-billing"><rect class="box key" x="470" y="150" width="300" height="90"/><text class="t1" x="620" y="182">⚙️ שירות גבייה (Backend)</text><text class="t2" x="620" y="206">ECS Fargate · כאן חיים הכללים העסקיים</text><text class="t2" x="620" y="226">שם השירות: הצעה</text></g>
+  <g id="b-billing"><rect class="box key" x="470" y="150" width="300" height="90"/><text class="t1" x="620" y="182">⚙️ שירות גבייה (Backend)</text><text class="t2" x="620" y="206">ECS Fargate · כאן חיים הכללים העסקיים</text><text class="t2" x="620" y="226" style="fill:#065f46">קיים: Gvia.BillingService (קריאה)</text></g>
   <g id="b-control"><rect class="box" x="470" y="275" width="300" height="70"/><text class="t1" x="620" y="303">🧭 RDS PostgreSQL · Control Plane</text><text class="t2" x="620" y="327">איזו רשות · איזה מסד · הרשאות — לא נתונים עסקיים</text></g>
   <g id="b-queue"><rect class="box key" x="905" y="440" width="270" height="80"/><text class="t1" x="1040" y="472">📬 SQS / SNS</text><text class="t2" x="1040" y="497">תור משימות ארוכות</text></g>
   <g id="b-worker"><rect class="box key" x="470" y="440" width="300" height="90"/><text class="t1" x="620" y="472">🛠️ Worker מסמכים (Backend)</text><text class="t2" x="620" y="496">ECS Fargate · מפיק את השובר ברקע</text><text class="t2" x="620" y="516">שם השירות: הצעה</text></g>
   <g id="b-status"><rect class="box undef" x="905" y="580" width="270" height="80"/><text class="t1" x="1040" y="610" style="fill:#991b1b">❓ סטטוס המשימה</text><text class="t2" x="1040" y="634" style="fill:#991b1b">איפה נשמר ואיך מגיע למסך — לא מוגדר</text></g>
 
-  <g id="b-legacy"><rect class="box" x="60" y="140" width="310" height="110"/><text class="t1" x="215" y="172">🗄️ Access + VBA</text><text class="t2" x="215" y="196">דרך RDP ושרת Terminal</text><text class="t2" x="215" y="218">ממשיך לעבוד במקביל בגל 2</text></g>
-  <g id="b-sql"><rect class="box key" x="60" y="345" width="310" height="100"/><text class="t1" x="215" y="378">🗄️ SQL Server על VM</text><text class="t2" x="215" y="402">מסד הנתונים של הרשות</text><text class="t2" x="215" y="424">אותו מסד שאקסס עובד מולו היום</text></g>
+  <g id="b-legacy"><rect class="box" x="30" y="125" width="180" height="125"/><text class="t1" x="120" y="157">🗄️ Access + VBA</text><text class="t2" x="120" y="181">RDP ושרת Terminal</text><text class="t2" x="120" y="203">ממשיך לעבוד</text><text class="t2" x="120" y="225">במקביל בגל 2</text></g>
+  <g id="b-iis"><rect class="box" x="225" y="125" width="180" height="125"/><text class="t1" x="315" y="157">🖥️ שרתי IIS</text><text class="t2" x="315" y="181">אתרים ו־Web Services</text><text class="t2" x="315" y="203">קיימים (asmx)</text><text class="t2" x="315" y="225" style="fill:#92400e">רשימה מלאה: ⚠️ לאמת</text></g>
+  <g id="b-sql"><rect class="box key" x="60" y="345" width="310" height="100"/><text class="t1" x="215" y="378">🗄️ SQL Server על VM</text><text class="t2" x="215" y="402">מסד הנתונים של הרשות</text><text class="t2" x="215" y="424">460 פרוצדורות · 20 טריגרים · 733 טבלאות</text></g>
 
   <!-- support services: separated from the request flow -->
   <g id="b-support"><rect x="460" y="705" width="730" height="160" rx="16" fill="#eef2ff" stroke="#c7d2fe" stroke-width="2"/>
@@ -74,11 +78,11 @@
 
   <!-- ===== arrows ===== -->
   <!-- short request: 1–5 -->
-  <g id="arrow-1"><path class="plan" d="M1425,195 L1425,248"/><g class="num"><circle cx="1448" cy="221" r="13" fill="#4338ca"/><text x="1448" y="221">1</text></g><text class="lbl" x="1515" y="226">פעולה במסך</text></g>
-  <g id="arrow-2"><path class="plan" d="M1290,280 L1177,280"/><g class="num"><circle cx="1233" cy="280" r="13" fill="#4338ca"/><text x="1233" y="280">2</text></g><text class="lbl" x="1233" y="258">חיפוש · סינכרוני</text></g>
-  <g id="arrow-3"><path class="verify" d="M905,265 C840,250 820,225 772,212"/><g class="num"><circle cx="845" cy="232" r="13" fill="#d97706"/><text x="845" y="232">3</text></g><text class="lbl v" x="840" y="200">קריאה פנימית · סינכרוני</text></g>
+  <g id="arrow-1"><path class="built" d="M1425,195 L1425,248"/><g class="num"><circle cx="1448" cy="221" r="13" fill="#059669"/><text x="1448" y="221">1</text></g><text class="lbl b" x="1515" y="226">פעולה במסך</text></g>
+  <g id="arrow-2"><path class="built" d="M1290,280 L1177,280"/><g class="num"><circle cx="1233" cy="280" r="13" fill="#059669"/><text x="1233" y="280">2</text></g><text class="lbl b" x="1233" y="258">חיפוש · סינכרוני</text></g>
+  <g id="arrow-3"><path class="built" d="M905,265 C840,250 820,225 772,212"/><g class="num"><circle cx="845" cy="232" r="13" fill="#059669"/><text x="845" y="232">3</text></g><text class="lbl b" x="840" y="200">קריאה פנימית · HTTP</text></g>
   <g id="arrow-4"><path class="plan" d="M600,240 L600,273"/><g class="num"><circle cx="578" cy="257" r="13" fill="#4338ca"/><text x="578" y="257">4</text></g><text class="lbl" x="530" y="262">איזה מסד?</text></g>
-  <g id="arrow-5"><path class="plan" d="M470,200 C420,210 400,300 372,350"/><g class="num"><circle cx="425" cy="250" r="13" fill="#4338ca"/><text x="425" y="250">5</text></g><text class="lbl" x="455" y="285" text-anchor="start">SQL · קריאה</text></g>
+  <g id="arrow-5"><path class="built" d="M470,200 C420,210 400,300 372,350"/><g class="num"><circle cx="425" cy="250" r="13" fill="#059669"/><text x="425" y="250">5</text></g><text class="lbl b" x="455" y="285" text-anchor="start">SQL · קריאה</text></g>
 
   <!-- long operation: 6–13 -->
   <g id="arrow-6"><path class="plan" d="M1290,325 L1177,325"/><g class="num"><circle cx="1233" cy="325" r="13" fill="#4338ca"/><text x="1233" y="325">6</text></g><text class="lbl" x="1233" y="356">הפקה → מס׳ משימה</text></g>
@@ -91,7 +95,7 @@
   <g id="arrow-13"><path class="verify" d="M1170,790 C1350,780 1480,560 1480,352"/><g class="num"><circle cx="1440" cy="680" r="13" fill="#d97706"/><text x="1440" y="680">13</text></g><text class="lbl v" x="1460" y="715">הורדת השובר</text><text class="lbl v" x="1460" y="733">בקישור זמני</text></g>
 
   <!-- transition period -->
-  <g id="arrow-14"><path class="verify" d="M215,250 L215,343"/><g class="num"><circle cx="238" cy="282" r="13" fill="#d97706"/><text x="238" y="282">14</text></g><text class="lbl v" x="148" y="292">עבודה במקביל</text><text class="lbl v" x="148" y="310">על אותו מסד</text></g>
+  <g id="arrow-14"><path class="verify" d="M120,252 L120,343"/><path class="verify" d="M315,252 L315,343"/><g class="num"><circle cx="143" cy="290" r="13" fill="#d97706"/><text x="143" y="290">14</text></g><text class="lbl v" x="217" y="292">עבודה במקביל</text><text class="lbl v" x="217" y="310">על אותו מסד</text></g>
 
   <!-- legend -->
   <g id="legend">
@@ -100,11 +104,12 @@
     <path d="M395,618 L320,618" class="plan"/><text x="305" y="623" text-anchor="start" font-size="14" fill="#1e1b4b">מופיע בתכנון הארכיטקט</text>
     <path d="M395,650 L320,650" class="verify"/><text x="305" y="655" text-anchor="start" font-size="14" fill="#92400e">בתכנון, הפרטים דורשים אימות</text>
     <path d="M395,682 L320,682" class="undef"/><text x="305" y="687" text-anchor="start" font-size="14" fill="#991b1b">לא מוגדר — אין להמציא</text>
-    <text x="395" y="720" text-anchor="start" font-size="14" fill="#475569">קיים בקוד: אין עדיין (אין קוד בפרויקט)</text>
+    <path d="M395,714 L320,714" class="built"/><text x="305" y="719" text-anchor="start" font-size="14" fill="#065f46" font-weight="600">קיים בקוד — כרטיס משלם (קריאה)</text>
     <text x="395" y="752" text-anchor="start" font-size="14" font-weight="600" fill="#4338ca">1–5 בקשה קצרה · תשובה מיידית</text>
     <text x="395" y="776" text-anchor="start" font-size="14" font-weight="600" fill="#4338ca">6–13 פעולה ארוכה · ברקע</text>
     <text x="395" y="800" text-anchor="start" font-size="14" font-weight="600" fill="#4338ca">14 תקופת המעבר</text>
-    <text x="395" y="832" text-anchor="start" font-size="13" fill="#475569">Local Agent וסורק: לא בתהליך הזה</text>
+    <text x="395" y="826" text-anchor="start" font-size="13" fill="#475569">Local Agent וסורק: לא בתהליך הזה</text>
+    <text x="395" y="848" text-anchor="start" font-size="13" fill="#92400e">אירוח בתקופת המעבר — IIS או AWS: ⚠️ לאמת</text>
   </g>
 </svg>
 </div>

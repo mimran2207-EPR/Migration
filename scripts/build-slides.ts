@@ -108,18 +108,22 @@ async function main() {
   const browser = await chromium.launch({ executablePath: CHROME });
   const tab = await browser.newPage({ viewport: { width: W, height: H } });
   const boxes: Record<string, { x: number; y: number; w: number; h: number }> = {};
-  let golden: import("playwright-core").Page | undefined;
+  // golden-kind slides render one of the HTML diagrams in docs/golden-slide/, screenshotted once each
+  const GOLDEN_DOCS = { slide: "golden-slide", layers: "golden-layers" } as const;
+  const goldenPages: Record<string, import("playwright-core").Page> = {};
   for (const m of modules) {
     for (const st of m.steps) {
       const s = SLIDES[st.id];
       if (!s) throw new Error(`no slide for ${st.id}`);
       if (s.kind === "golden") {
-        // the golden slide itself (docs/golden-slide/golden-slide.html); highlight = union of its elements
+        // the diagram itself (docs/golden-slide/<doc>.html); highlight = union of its elements
+        const name = GOLDEN_DOCS[s.doc ?? "slide"];
+        let golden = goldenPages[name];
         if (!golden) {
-          golden = await browser.newPage({ viewport: { width: W, height: H } });
-          await golden.goto(pathToFileURL(resolve("docs/golden-slide/golden-slide.html")).href, { waitUntil: "networkidle" });
+          golden = goldenPages[name] = await browser.newPage({ viewport: { width: W, height: H } });
+          await golden.goto(pathToFileURL(resolve(`docs/golden-slide/${name}.html`)).href, { waitUntil: "networkidle" });
           await golden.evaluate(() => document.fonts.ready);
-          await golden.screenshot({ path: "slides/golden.jpg", type: "jpeg", quality: 90 });
+          await golden.screenshot({ path: `slides/${name}.jpg`, type: "jpeg", quality: 90 });
         }
         const r = await golden.evaluate((ids: string[]) => {
           const rs = ids.map((id) => document.getElementById(id)!.getBoundingClientRect());
@@ -130,7 +134,7 @@ async function main() {
         const [a, b] = [Math.max(0, r.l - 8), Math.max(0, r.t - 8)];
         const [c, d] = [Math.min(W, r.r + 8), Math.min(H, r.b + 8)];
         boxes[st.id] = { x: p(a, W), y: p(b, H), w: p(c - a, W), h: p(d - b, H) };
-        if (!only.length || only.includes(st.id)) copyFileSync("slides/golden.jpg", `public/screens/${st.id}.jpg`);
+        if (!only.length || only.includes(st.id)) copyFileSync(`slides/${name}.jpg`, `public/screens/${st.id}.jpg`);
         continue;
       }
       if (s.kind === "arch") {
@@ -173,18 +177,20 @@ async function main() {
     await pdfPage.pdf({ path: out, width: `${w}px`, height: `${h}px`, printBackground: true, pageRanges: "1" });
   };
   mkdirSync("public/pdf", { recursive: true });
-  let archDone = false, goldenDone = false;
+  let archDone = false;
+  const goldenDone = new Set<string>();
   for (const m of modules) {
     for (const st of m.steps) {
       const s = SLIDES[st.id];
       if (s.kind === "golden") {
-        if (!goldenDone) {
-          await pdfPage.goto(pathToFileURL(resolve("docs/golden-slide/golden-slide.html")).href, { waitUntil: "networkidle" });
+        const name = GOLDEN_DOCS[s.doc ?? "slide"];
+        if (!goldenDone.has(name)) {
+          await pdfPage.goto(pathToFileURL(resolve(`docs/golden-slide/${name}.html`)).href, { waitUntil: "networkidle" });
           await pdfPage.evaluate(() => document.fonts.ready);
-          await pdfPage.pdf({ path: "public/pdf/golden-slide.pdf", width: "1600px", height: "900px", printBackground: true, pageRanges: "1" });
-          goldenDone = true;
+          await pdfPage.pdf({ path: `public/pdf/${name}.pdf`, width: "1600px", height: "900px", printBackground: true, pageRanges: "1" });
+          goldenDone.add(name);
         }
-        downloads[st.id] = "golden-slide";
+        downloads[st.id] = name;
       } else if (s.kind === "arch") {
         if (!archDone) await imgPdf("slides/architecture.jpg", ARCH_SIZE.w, ARCH_SIZE.h, "public/pdf/architecture.pdf");
         archDone = true;

@@ -5,7 +5,7 @@
 export type Item = { icon?: string; title: string; text?: string; tag?: string };
 export type Slide =
   | { kind: "arch"; box: string; note?: string }
-  | { kind: "golden"; targets: string[]; note?: string }
+  | { kind: "golden"; targets: string[]; doc?: "slide" | "layers"; note?: string }
   | { kind: "cards"; items: Item[]; cols?: number; hl?: number; note?: string }
   | { kind: "flow"; items: Item[]; hl?: number; note?: string }
   | { kind: "stats"; items: { value: string; label: string; sub?: string }[]; hl?: number; note?: string }
@@ -585,6 +585,71 @@ export const SLIDES: Record<string, Slide> = {
       { icon: "🧭", title: "Control Plane", text: "מה נשמר בו בדיוק" },
       { icon: "🗄️", title: "מסדי הרשויות", text: "איפה, ואיך מגיעים ברשת" },
       { icon: "🔐", title: "הזדהות ומעבר", text: "שיטה · מערכת רושמת" },
+    ],
+  },
+
+  // ---- module 14: the golden slide broken into layers (docs/golden-slide/golden-layers.html) ----
+  "14.1": { kind: "golden", targets: ["arrow-1", "arrow-2", "arrow-3", "arrow-5", "b-iis", "b-sql"] },
+  "14.2": { kind: "golden", doc: "layers", targets: ["layers"] },
+  "14.3": { kind: "golden", doc: "layers", targets: ["L-screen", "L-service-m"] },
+  "14.4": { kind: "golden", doc: "layers", targets: ["L-dblogic", "L-dblogic-m"] },
+  "14.5": {
+    kind: "compare",
+    hl: 0,
+    left: { title: "קוראים לפרוצדורה הקיימת", items: ["אקסס וה-Web מתנהגים אותו דבר", "הטריגרים והכללים הקיימים פועלים", "ברירת המחדל בתקופת המעבר", "הכלל נשאר במסד, באחריות ה-DBA"] },
+    right: { title: "כותבים את הכלל מחדש בשירות", items: ["בדיקות אוטומטיות ושליטה מלאה", "חייבים להוכיח תוצאה זהה", "מתאים לגל 3, אחרי המעבר", "החלטה: ארכיטקט + בעל המסד"] },
+  },
+  "14.6": { kind: "golden", doc: "layers", targets: ["L-hosting", "L-hosting-m"] },
+  "14.7": {
+    kind: "flow",
+    hl: 2,
+    items: [
+      { icon: "🌿", title: "קוד ב-Git", text: "גרסה מאושרת" },
+      { icon: "📦", title: "בנייה ופרסום", text: "תיקיית פרסום" },
+      { icon: "🧪", title: "אתר בדיקה", text: "IIS + מסד בדיקה" },
+      { icon: "✅", title: "אישור משתמשים", text: "לפי רשימת בדיקה" },
+      { icon: "🚀", title: "אתר ייצור", text: "אותה גרסה בדיוק" },
+    ],
+    note: "שומרים את הגרסה הקודמת · סיסמאות בהגדרות השרת, לא בקבצים · אירוח בתקופת המעבר: לאמת מול הארכיטקט",
+  },
+  "14.8": { kind: "golden", doc: "layers", targets: ["col-owner", "L-ops-o"] },
+  "14.9": { kind: "golden", doc: "layers", targets: ["col-ai", "L-ops-a"] },
+  "14.10": { kind: "golden", doc: "layers", targets: ["L-life"] },
+  "14.11": {
+    kind: "cards",
+    cols: 3,
+    hl: 1,
+    items: [
+      { icon: "📘", title: "קובץ הסבר", text: "מה המערכת עושה ואיך מפעילים" },
+      { icon: "✅", title: "רשימת בדיקה", text: "אחרי כל שינוי" },
+      { icon: "🗂️", title: "יומן החלטות", text: "מה הוחלט מול הארכיטקט ולמה" },
+      { icon: "💬", title: "פרומפטים", text: "אלה שעבדו, לשימוש חוזר" },
+      { icon: "🧪", title: "בדיקות אוטומטיות", text: "בדיקה לכל כלל עסקי" },
+      { icon: "🔄", title: "עדכוני גרסאות", text: "Angular ו-.NET, פעם ברבעון" },
+    ],
+  },
+  "14.12": {
+    kind: "table",
+    hl: 0,
+    head: ["מדרגה", "מה מוכיחים לפני שעולים"],
+    rows: [
+      ["1 · קריאה בלבד (היום)", "אותם נתונים כמו באקסס"],
+      ["2 · כתיבה למסד בדיקה", "הפעולה עובדת, בלי נזק"],
+      ["3 · דרך פרוצדורה קיימת", "הטריגרים והכללים של אקסס פועלים"],
+      ["4 · בלי כפילות + תיעוד", "פעולה לא מתבצעת פעמיים; ידוע מי עשה מה"],
+      ["5 · מתג לרשות ניסוי", "אפשר לכבות ולחזור לאקסס"],
+      ["6 · ייצור", "אישור בכתב: ארכיטקט, DBA, בעל המערכת"],
+    ],
+  },
+  "14.13": {
+    kind: "table",
+    hl: 3,
+    head: ["שכבה", "מצב בכרטיס המשלם"],
+    rows: [
+      ["מסך · BFF · שירות", "קיים, עם מזהה מעקב"],
+      ["מסד", "קריאה בלבד, מהמסד האמיתי"],
+      ["אירוח", "המחשב המקומי בלבד"],
+      ["הבא בתור", "שמות סוגי חיוב · אימות עמודות · איפה מתארחים"],
     ],
   },
 };

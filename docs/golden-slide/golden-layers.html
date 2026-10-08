@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>פירוק שקף הזהב — שכבות ואחריות</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#1e1b4b; --muted:#475569; --line:#e2e8f0; --bg:#f8fafc; }
+  html,body { margin:0; background:var(--bg); font-family:Heebo,Arial,sans-serif; color:var(--ink); }
+  .wrap { width:1600px; height:900px; box-sizing:border-box; padding:18px 22px; display:flex; flex-direction:column; gap:14px; }
+  h1 { margin:0; font-size:27px; font-weight:800; text-align:center; }
+  .sub { margin:-4px 0 0; text-align:center; font-size:14.5px; color:#b45309; font-weight:600; }
+  .grid { display:grid; grid-template-columns:200px 300px 290px 220px 240px 1fr; gap:0; background:#fff; border:2px solid var(--line); border-radius:16px; overflow:hidden; }
+  .grid > div { padding:15px 12px; font-size:14.5px; line-height:1.4; border-bottom:1px solid var(--line); border-inline-start:1px solid var(--line); display:block; align-content:center; }
+  .grid > div:nth-child(6n+1) { border-inline-start:none; }
+  .hd { background:#1e1b4b; color:#fff; font-weight:800; font-size:14.5px !important; }
+  .name { font-weight:800; font-size:15.5px !important; }
+  .name small { display:block; font-weight:400; font-size:12.5px; color:var(--muted); }
+  code { font-family:Consolas,monospace; font-size:12.5px; direction:ltr; unicode-bidi:isolate; color:#334155; }
+  .chip { display:inline-block; border-radius:999px; padding:1px 9px; margin:1px 0 1px 4px; font-size:12.5px; font-weight:600; }
+  .you { background:#e0f2fe; color:#075985; } .ai { background:#ede9fe; color:#5b21b6; } .arch { background:#fef3c7; color:#92400e; }
+  .dba { background:#fee2e2; color:#991b1b; } .it { background:#dcfce7; color:#166534; }
+  .w { color:#5b21b6; font-weight:700; } .r { color:#b45309; font-weight:700; } .n { color:#b91c1c; font-weight:700; }
+  .life { display:flex; align-items:stretch; gap:6px; background:#fff; border:2px solid var(--line); border-radius:16px; padding:10px 12px; }
+  .life .lt { font-weight:800; font-size:15px; width:120px; display:flex; align-items:center; }
+  .st { flex:1; border-radius:12px; padding:10px 8px; text-align:center; font-size:12.5px; line-height:1.3; border:2px solid; }
+  .st b { display:block; font-size:13.5px; }
+  .ar { align-self:center; color:#94a3b8; font-weight:800; }
+  .legend { display:flex; gap:18px; justify-content:center; font-size:13px; color:var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>פירוק שקף הזהב — שכבות, אחריות ושילוב AI</h1>
+  <p class="sub">כל שכבה: מה יש בה, איפה היא היום, מי אמון עליה, מה מותר ל־AI ומה מתחזקים. פרטי שרתי IIS ובעלי התפקידים: ⚠️ נדרש אימות מול הארכיטקט.</p>
+
+  <div class="grid" id="layers">
+    <div class="hd">שכבה</div><div class="hd">מה יש בה</div><div class="hd">איפה זה היום</div><div class="hd" id="col-owner">מי אמון</div><div class="hd" id="col-ai">מה מותר ל־AI</div><div class="hd">מה מתחזקים</div>
+
+    <div class="name" id="L-screen">🌐 מסך<small>Angular · חצים <bdi dir="ltr">1–2</bdi></small></div>
+    <div>הצגה, קלט, הודעות שגיאה. בלי כללים עסקיים</div>
+    <div><code>frontend/src/app</code> בכרטיס המשלם</div>
+    <div id="L-screen-o"><span class="chip you">אתם: ההתנהגות</span><span class="chip ai">AI: הקוד</span></div>
+    <div id="L-screen-a" class="w">כותב קוד</div>
+    <div id="L-screen-m">נוסחים, חוויית שימוש, עדכוני גרסת Angular</div>
+
+    <div class="name" id="L-bff">🚪 Thin BFF<small><bdi dir="ltr">.NET 10</bdi> · חצים <bdi dir="ltr">2–3</bdi></small></div>
+    <div>זהות, רשות, מזהה מעקב, ניתוב לשירות</div>
+    <div><code>backend/Gvia.Bff</code></div>
+    <div id="L-bff-o"><span class="chip arch">ארכיטקט: הכללים</span><span class="chip ai">AI: הקוד</span></div>
+    <div id="L-bff-a" class="w">כותב קוד</div>
+    <div id="L-bff-m">הרשאות, ניתוב לכל פעולה חדשה</div>
+
+    <div class="name" id="L-service">⚙️ שירות עסקי<small><bdi dir="ltr">.NET 10</bdi> · חצים <bdi dir="ltr">3–5</bdi></small></div>
+    <div>הכללים העסקיים והפנייה למסד. הלב של הקוד החדש</div>
+    <div><code>backend/Gvia.BillingService</code> · <code>PayerStore.cs</code></div>
+    <div id="L-service-o"><span class="chip you">אתם: הכללים</span><span class="chip ai">AI: הקוד</span><span class="chip arch">ארכיטקט: סקירה</span></div>
+    <div id="L-service-a" class="w">כותב קוד + בדיקות</div>
+    <div id="L-service-m">בדיקה לכל כלל, השאילתות, רשימת הפרוצדורות שהשירות קורא</div>
+
+    <div class="name" id="L-dblogic">🧠 לוגיקה במסד<small>SQL Server</small></div>
+    <div>460 פרוצדורות · 233 פונקציות · 131 Views · 20 טריגרים</div>
+    <div>במסד הגבייה, למשל <code>GetPaymentsByMspkod</code>, <code>bldshovar</code>, טריגר <code>trg_shovar_rem</code></div>
+    <div id="L-dblogic-o"><span class="chip dba">DBA / בעל המערכת</span></div>
+    <div id="L-dblogic-a" class="r">קורא ומסביר. שינוי רק באישור</div>
+    <div id="L-dblogic-m">תיעוד: איזו פרוצדורה עושה מה, ואיזה טריגר רץ בכל כתיבה</div>
+
+    <div class="name" id="L-data">🗄️ טבלאות<small>נתוני הרשות</small></div>
+    <div>733 טבלאות: משלמים, שוברים, תשלומים…</div>
+    <div>SQL Server על VM של הרשות · אותו מסד שאקסס עובד מולו</div>
+    <div id="L-data-o"><span class="chip dba">DBA</span></div>
+    <div id="L-data-a" class="r">קריאה בלבד (SELECT)</div>
+    <div id="L-data-m">גיבויים, אינדקסים, הרשאות משתמשים</div>
+
+    <div class="name" id="L-hosting">🖥️ אירוח<small>היום IIS · ביעד AWS</small></div>
+    <div>אתרים, Application Pools, כתובות (Bindings), תעודות, <code>web.config</code></div>
+    <div>שרתי IIS עם אתרים ו־Web Services קיימים · ביעד ECS Fargate</div>
+    <div id="L-hosting-o"><span class="chip it">IT / תשתיות</span><span class="chip arch">ארכיטקט</span></div>
+    <div id="L-hosting-a" class="n">לא נוגע בשרתים</div>
+    <div id="L-hosting-m">התקנות, תעודות, עדכוני <bdi dir="ltr">.NET</bdi>, מי מפרסם לאן</div>
+
+    <div class="name" id="L-ops">📈 תפעול<small>אחרי העלייה</small></div>
+    <div>לוגים, מזהה מעקב, סודות, ניטור, גיבוי</div>
+    <div>חלונות הלוג היום · Secrets Manager ביעד</div>
+    <div id="L-ops-o"><span class="chip it">IT</span><span class="chip you">אתם: דיווח תקלות</span></div>
+    <div id="L-ops-a" class="r">מנתח לוג שמסרתם</div>
+    <div id="L-ops-m">טיפול בתקלה לפי מזהה מעקב, בלי נתונים אישיים</div>
+  </div>
+
+  <div class="life" id="L-life">
+    <div class="lt">מחזור החיים של קוד AI</div>
+    <div class="st" style="border-color:#7dd3fc"><b>1 · בקשה</b>אתם: התנהגות + בדיקה</div><div class="ar">←</div>
+    <div class="st" style="border-color:#c4b5fd"><b>2 · ענף ב־Git</b>שינוי מבודד</div><div class="ar">←</div>
+    <div class="st" style="border-color:#c4b5fd"><b>3 · AI כותב</b>קוד + בדיקות</div><div class="ar">←</div>
+    <div class="st" style="border-color:#7dd3fc"><b>4 · אתם בודקים</b>לפי רשימת בדיקה</div><div class="ar">←</div>
+    <div class="st" style="border-color:#fcd34d"><b>5 · סקירה (PR)</b>ארכיטקט מאשר</div><div class="ar">←</div>
+    <div class="st" style="border-color:#86efac"><b>6 · אתר בדיקה</b>פריסה ל־IIS בדיקה</div><div class="ar">←</div>
+    <div class="st" style="border-color:#7dd3fc"><b>7 · אישור</b>משתמשים מאשרים</div><div class="ar">←</div>
+    <div class="st" style="border-color:#86efac"><b>8 · ייצור</b>IT מפרסם · אפשר לחזור</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="chip you">אתם</span>מגדירים ובודקים</span><span><span class="chip ai">AI</span>כותב לפי הנחיה</span>
+    <span><span class="chip arch">ארכיטקט</span>מחליט ומאשר</span><span><span class="chip dba">DBA</span>מסד ופרוצדורות</span><span><span class="chip it">IT</span>שרתים ופריסה</span>
+  </div>
+</div>
+</body>
+</html>

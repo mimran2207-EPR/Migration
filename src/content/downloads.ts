@@ -88,5 +88,18 @@ export const DOWNLOADS: Record<string, string> = {
   "13.10": "13.10",
   "13.11": "13.11",
   "13.12": "13.12",
-  "13.13": "13.13"
+  "13.13": "13.13",
+  "14.1": "golden-slide",
+  "14.2": "golden-layers",
+  "14.3": "golden-layers",
+  "14.4": "golden-layers",
+  "14.5": "14.5",
+  "14.6": "golden-layers",
+  "14.7": "14.7",
+  "14.8": "golden-layers",
+  "14.9": "golden-layers",
+  "14.10": "golden-layers",
+  "14.11": "14.11",
+  "14.12": "14.12",
+  "14.13": "14.13"
 };
