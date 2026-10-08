@@ -90,7 +90,7 @@ export default function AvatarPanel({ step, introUrl, narrate, onWord, onFinishe
   const status = paused ? "⏸ מושהה" : videoReady ? "▶ מציג סרטון" : speaking ? "🔊 מסביר…" : narrate ? "מוכן" : "🔇 קריינות כבויה";
 
   return (
-    <aside aria-label="העוזר הדיגיטלי, המדריך" className="avatar-stage">
+    <aside aria-label="יהודה מימראן, המדריך" className="avatar-stage">
       <div ref={cardRef} data-mouth="0" className={`avatar-3d ${speaking ? "is-speaking" : ""}`}>
         {videoSrc && (
           <video
@@ -125,7 +125,7 @@ export default function AvatarPanel({ step, introUrl, narrate, onWord, onFinishe
           <div className="avatar-face">
             {TALK_FRAMES.map((src, i) =>
               i === 0 ? (
-                <img key={src} src={src} alt="העוזר הדיגיטלי של EPR מערכות" data-speaking={speaking ? "true" : "false"} className="avatar-frame" />
+                <img key={src} src={src} alt="יהודה מימראן, EPR מערכות" data-speaking={speaking ? "true" : "false"} className="avatar-frame" />
               ) : (
                 <img key={src} src={src} alt="" aria-hidden="true" className={`avatar-frame mouth-${i}`} />
               ),
@@ -133,7 +133,7 @@ export default function AvatarPanel({ step, introUrl, narrate, onWord, onFinishe
           </div>
         )}
         <div className="avatar-tag">
-          <span className="font-bold">העוזר הדיגיטלי</span>
+          <span className="font-bold">יהודה מימראן</span>
           <span className="text-[0.7em] opacity-90">{status}</span>
         </div>
       </div>

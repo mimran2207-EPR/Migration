@@ -101,15 +101,15 @@ describe("App", () => {
     const video = container.querySelector("video")!;
     fireEvent.error(video);
     expect(container.querySelector("video")).toBeNull();
-    expect(screen.getByAltText("העוזר הדיגיטלי של EPR מערכות")).toBeInTheDocument();
+    expect(screen.getByAltText("יהודה מימראן, EPR מערכות")).toBeInTheDocument();
     expect(screen.getByTestId("caption")).toHaveTextContent(findStep("0.1")!.step.script);
   });
 
   it("swaps the still avatar for the video once the clip has data", () => {
     const { container } = render(<App />);
-    expect(screen.getByAltText("העוזר הדיגיטלי של EPR מערכות")).toBeInTheDocument();
+    expect(screen.getByAltText("יהודה מימראן, EPR מערכות")).toBeInTheDocument();
     fireEvent.loadedData(container.querySelector("video")!);
-    expect(screen.queryByAltText("העוזר הדיגיטלי של EPR מערכות")).toBeNull();
+    expect(screen.queryByAltText("יהודה מימראן, EPR מערכות")).toBeNull();
     expect(container.querySelector("video")).not.toHaveClass("hidden");
   });
 
