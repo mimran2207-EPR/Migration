@@ -107,6 +107,11 @@ export default function StepStage({ module, step, focusTitle = false, activeWord
   const [fullView, setFullView] = useState(false);
   const frameRef = useRef<HTMLDivElement>(null);
   const zoom = useZoom(step, isMobile && !fullView && showImage, frameRef, ratio);
+  const panRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const el = panRef.current;
+    if (zoom && el) el.scrollTo?.({ left: -zoom.left, top: -zoom.top });
+  }, [zoom]);
 
   return (
     <section aria-labelledby="step-title" className="rounded-2xl bg-white p-3 shadow-sm md:p-4">
@@ -132,10 +137,14 @@ export default function StepStage({ module, step, focusTitle = false, activeWord
       <div className="relative mx-auto w-full max-w-[max(18rem,calc((100vh-17rem)*2.05))]">
         {showImage ? (
           <div ref={frameRef} className="relative overflow-hidden rounded-xl border border-slate-100" style={zoom ? { height: zoom.frameH } : undefined}>
+            {/* Zoomed (phone): a scroll box opened on the highlight, so the learner can pan with a finger. */}
             <div
-              className={zoom ? "absolute transition-[left,top] duration-500" : "relative"}
-              style={zoom ? { width: zoom.w, left: zoom.left, top: zoom.top } : undefined}
+              ref={panRef}
+              dir="ltr"
+              className={zoom ? "absolute inset-0 overflow-auto overscroll-contain" : "contents"}
+              data-testid="pan"
             >
+            <div className="relative" style={zoom ? { width: zoom.w } : undefined}>
               <img
                 key={step.id}
                 data-role="screen"
@@ -151,6 +160,7 @@ export default function StepStage({ module, step, focusTitle = false, activeWord
               />
               <HighlightRing step={step} />
             </div>
+            </div>
             {isMobile && step.highlight && (
               <button
                 type="button"
@@ -159,6 +169,11 @@ export default function StepStage({ module, step, focusTitle = false, activeWord
               >
                 {fullView ? "🔍 התמקד באזור" : "⤢ מסך מלא"}
               </button>
+            )}
+            {zoom && (
+              <span aria-hidden="true" className="pointer-events-none absolute bottom-2 right-2 z-30 rounded-full bg-slate-900/60 px-2 py-0.5 text-[0.65rem] text-white">
+                👆 גררו להזזה
+              </span>
             )}
           </div>
         ) : (

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import type { Module } from "../content/types";
 import { stepLabel } from "../content/label";
 
@@ -27,6 +28,14 @@ export default function ProcessStepper({ modules, currentId, done, onSelect }: P
   const doneSet = new Set(done);
   const current = modules.find((m) => m.steps.some((s) => s.id === currentId)) ?? modules[0];
   const stepIndex = current.steps.findIndex((s) => s.id === currentId);
+  const currentRef = useRef<HTMLLIElement>(null);
+  // On a phone only a few topics fit: keep the current one in view (horizontal scroll only).
+  useEffect(() => {
+    const li = currentRef.current;
+    const strip = li?.parentElement;
+    if (!li || !strip || strip.scrollWidth <= strip.clientWidth) return;
+    li.scrollIntoView?.({ inline: "center", block: "nearest", behavior: "smooth" });
+  }, [current.id]);
 
   return (
     <nav aria-label="תהליכי ההדרכה" className="rounded-2xl bg-white px-3 py-3 shadow-sm md:px-5">
@@ -34,7 +43,7 @@ export default function ProcessStepper({ modules, currentId, done, onSelect }: P
         {modules.map((m, i) => {
           const st = moduleState(m, currentId, doneSet);
           return (
-            <li key={m.id} className="flex min-w-[2.6rem] flex-1 items-start md:min-w-[4.5rem]">
+            <li key={m.id} ref={st === "current" ? currentRef : undefined} className="flex min-w-[2.6rem] flex-1 items-start md:min-w-[4.5rem]">
               <button
                 type="button"
                 onClick={() => onSelect(m.steps[0].id)}
@@ -47,7 +56,7 @@ export default function ProcessStepper({ modules, currentId, done, onSelect }: P
                 >
                   {st === "done" ? "✓" : i + 1}
                 </span>
-                <span className={`text-center text-[0.68rem] leading-tight md:text-xs ${st === "current" ? "font-bold text-[#4338ca] max-md:whitespace-nowrap" : "text-slate-500 max-md:hidden"}`}>
+                <span className={`text-center text-[0.68rem] leading-tight md:text-xs ${st === "current" ? "font-bold text-[#4338ca]" : "text-slate-500"} max-md:hidden`}>
                   {m.title}
                 </span>
               </button>
