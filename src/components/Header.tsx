@@ -1,3 +1,5 @@
+import InstallButton from "./InstallButton";
+
 interface Props {
   done: number;
   total: number;
@@ -24,6 +26,7 @@ export default function Header({ done, total, navOpen, onToggleNav }: Props) {
           <h1 className="truncate text-lg font-bold md:text-2xl">מעבר מאקסס ל־WEB</h1>
           <p className="hidden text-sm text-white/85 sm:block">EPR מערכות · מסלול לימוד צעד אחר צעד</p>
         </div>
+        <InstallButton />
         <div className="flex shrink-0 flex-col items-end gap-1" role="group" aria-label="התקדמות">
           <span className="text-sm font-medium" dir="ltr">
             {done}/{total}
