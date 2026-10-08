@@ -77,6 +77,30 @@ def best_cuts(gaps: list[tuple[float, float]], t0: float, t1: float, pred: list[
     return [cands[j][0] for j in reversed(picks)]
 
 
+def check_audio(video: pathlib.Path, batch: dict, cuts: list[float], n: int) -> None:
+    """--check: an MP3 with every transition (2.5 s before the cut, a beep, 3 s after) so a person
+    can confirm each cut falls between two steps, plus the expected words around each beep."""
+    import shutil
+    import tempfile
+
+    tmp = pathlib.Path(tempfile.mkdtemp())
+    run = lambda *a: subprocess.run([FF, "-v", "error", "-y", *a], check=True)
+    run("-f", "lavfi", "-i", "sine=frequency=880:duration=0.25", "-ar", "44100", "-ac", "1", str(tmp / "beep.wav"))
+    run("-f", "lavfi", "-i", "anullsrc=r=44100:cl=mono", "-t", "1.6", str(tmp / "gap.wav"))
+    parts = []
+    for i, c in enumerate(cuts):
+        run("-ss", str(max(0, c - 2.5)), "-to", str(c), "-i", str(video), "-vn", "-ar", "44100", "-ac", "1", str(tmp / f"a{i}.wav"))
+        run("-ss", str(c), "-to", str(c + 3), "-i", str(video), "-vn", "-ar", "44100", "-ac", "1", str(tmp / f"z{i}.wav"))
+        parts += [f"file 'a{i}.wav'", "file 'beep.wav'", f"file 'z{i}.wav'", "file 'gap.wav'"]
+        prev, nxt = batch["steps"][i], batch["steps"][i + 1]
+        print(f"{i + 1:2}. end {prev['id']}: …{' '.join(prev['script'].split()[-4:])}  ║  start {nxt['id']}: {' '.join(nxt['script'].split()[:5])}…")
+    (tmp / "list.txt").write_text("\n".join(parts))
+    out = ROOT / "private" / "videos" / f"check-batch-{n}.mp3"
+    run("-f", "concat", "-safe", "0", "-i", str(tmp / "list.txt"), "-c:a", "libmp3lame", "-b:a", "96k", str(out))
+    shutil.rmtree(tmp, ignore_errors=True)
+    print(f"check audio: {out}")
+
+
 def main() -> None:
     sys.stdout.reconfigure(encoding="utf-8")
     n = int(sys.argv[1])
@@ -94,9 +118,11 @@ def main() -> None:
     scale = (t1 - t0) / sum(weights)
     pred = [w * scale for w in weights]
     cuts = [0.0] + best_cuts(gaps, t0, t1, pred) + [duration]
-    if "--dry" in sys.argv:
+    if "--dry" in sys.argv or "--check" in sys.argv:
         for i, step in enumerate(batch["steps"]):
             print(f"{step['id']}: {cuts[i]:6.1f} → {cuts[i + 1]:6.1f}  ({cuts[i + 1] - cuts[i]:4.1f}s)")
+        if "--check" in sys.argv:
+            check_audio(video, batch, cuts[1:-1], n)
         return
 
     for i, step in enumerate(batch["steps"]):
