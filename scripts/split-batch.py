@@ -1,10 +1,11 @@
 """Cut one long HeyGen "batch" video into one video per step, then process each for the site.
 
   python scripts/split-batch.py 1            # reads private/videos/batch-1.mp4
+  python scripts/split-batch.py 1 --dry      # only show the cut points
 
-How the cut points are found: each step's expected start is estimated from its share of the
-batch's words; the cut is then snapped to the longest silence near that estimate (the blank
-line between steps makes HeyGen pause there). Steps go to private/videos/<id>-hd.mp4 and are
+How the cut points are found: all silences in the video are candidates; a dynamic program picks
+one cut per step boundary so that every segment's length best matches the step's expected length
+(its MP3 narration, scaled to the batch), preferring longer pauses (the blank line between steps). Steps go to private/videos/<id>-hd.mp4 and are
 processed by process-video.py into public/avatar/<id>.mp4 + .webm.
 Requires: pip install imageio-ffmpeg opencv-python-headless
 """
@@ -33,7 +34,51 @@ def silences(video: pathlib.Path) -> tuple[float, list[tuple[float, float]]]:
     return duration, list(zip(starts, ends))
 
 
+def narration_seconds(sid: str) -> float | None:
+    mp3 = ROOT / "public" / "narration" / f"{sid}.mp3"
+    if not mp3.exists():
+        return None
+    out = subprocess.run([FF, "-hide_banner", "-i", str(mp3)], capture_output=True, text=True, errors="replace").stderr
+    m = re.search(r"Duration: (\d+):(\d+):([\d.]+)", out)
+    return int(m[1]) * 3600 + int(m[2]) * 60 + float(m[3]) if m else None
+
+
+def best_cuts(gaps: list[tuple[float, float]], t0: float, t1: float, pred: list[float]) -> list[float]:
+    """Choose len(pred)-1 cut points among the silences (dynamic programming): each segment's
+    length should match its predicted length, and longer silences are preferred as cuts."""
+    cands = [((a + b) / 2, b - a) for a, b in gaps if t0 < (a + b) / 2 < t1]
+    n, m = len(pred), len(cands)
+    if m < n - 1:
+        sys.exit(f"only {m} pauses found for {n} steps — check the video")
+    longest = max(length for _, length in cands)
+
+    def cost(seg: float, p: float) -> float:
+        return ((seg - p) / p) ** 2
+
+    INF = float("inf")
+    # dp[k][j]: best cost with cut k (0-based) at candidate j
+    dp = [[INF] * m for _ in range(n - 1)]
+    back = [[-1] * m for _ in range(n - 1)]
+    for j, (t, length) in enumerate(cands):
+        dp[0][j] = cost(t - t0, pred[0]) - 0.3 * length / longest
+    for k in range(1, n - 1):
+        for j in range(k, m):
+            t, length = cands[j]
+            for i in range(k - 1, j):
+                if dp[k - 1][i] == INF:
+                    continue
+                c = dp[k - 1][i] + cost(t - cands[i][0], pred[k]) - 0.3 * length / longest
+                if c < dp[k][j]:
+                    dp[k][j], back[k][j] = c, i
+    last = min(range(m), key=lambda j: dp[n - 2][j] + cost(t1 - cands[j][0], pred[n - 1]) if dp[n - 2][j] < INF else INF)
+    picks = [last]
+    for k in range(n - 2, 0, -1):
+        picks.append(back[k][picks[-1]])
+    return [cands[j][0] for j in reversed(picks)]
+
+
 def main() -> None:
+    sys.stdout.reconfigure(encoding="utf-8")
     n = int(sys.argv[1])
     batch = next(b for b in json.loads((ROOT / "docs" / "heygen-batches.json").read_text(encoding="utf-8")) if b["n"] == n)
     video = ROOT / "private" / "videos" / f"batch-{n}.mp4"
@@ -43,22 +88,16 @@ def main() -> None:
     # speech spans from the first to the last sound
     t0 = gaps[0][1] if gaps and gaps[0][0] < 0.05 else 0.0
     t1 = gaps[-1][0] if gaps and gaps[-1][1] > duration - 0.3 else duration
-    words = [len(s["script"].split()) for s in batch["steps"]]
-    total = sum(words)
-
-    cuts = [0.0]
-    acc = 0
-    for i, w in enumerate(words[:-1]):
-        acc += w
-        expected = t0 + (t1 - t0) * acc / total
-        window = max(3.0, 0.25 * (t1 - t0) * w / total)
-        near = [g for g in gaps if abs((g[0] + g[1]) / 2 - expected) <= window and g[0] > cuts[-1] + 1]
-        best = max(near, key=lambda g: g[1] - g[0]) if near else None
-        cut = (best[0] + best[1]) / 2 if best else expected
-        print(f"  {batch['steps'][i]['id']} → {batch['steps'][i + 1]['id']}: expected {expected:6.1f}s, cut {cut:6.1f}s"
-              + ("" if best else "  (no pause found — estimated)"))
-        cuts.append(cut)
-    cuts.append(duration)
+    # Expected length of each step: its MP3 narration length (same text, similar pace),
+    # falling back to word count; scaled so the steps fill the batch's speech span.
+    weights = [narration_seconds(s["id"]) or len(s["script"].split()) / 2.5 for s in batch["steps"]]
+    scale = (t1 - t0) / sum(weights)
+    pred = [w * scale for w in weights]
+    cuts = [0.0] + best_cuts(gaps, t0, t1, pred) + [duration]
+    if "--dry" in sys.argv:
+        for i, step in enumerate(batch["steps"]):
+            print(f"{step['id']}: {cuts[i]:6.1f} → {cuts[i + 1]:6.1f}  ({cuts[i + 1] - cuts[i]:4.1f}s)")
+        return
 
     for i, step in enumerate(batch["steps"]):
         sid = step["id"]
