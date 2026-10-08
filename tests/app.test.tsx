@@ -157,7 +157,7 @@ describe("App", () => {
   });
 
   it("ignores stale ids when counting progress", () => {
-    markDone("9.9");
+    markDone("99.9");
     markDone("0.1");
     render(<App />);
     expect(screen.getByText(`1/${allSteps.length}`)).toBeInTheDocument();

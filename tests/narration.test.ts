@@ -42,7 +42,7 @@ describe("narrate", () => {
 
   it("falls back to browser speech when the MP3 can't be played", () => {
     const speak = vi.spyOn(speech, "speak").mockImplementation(() => {});
-    narrate("9.9", "טקסט גיבוי");
+    narrate("99.9", "טקסט גיבוי");
     FakeAudio.last.onerror?.();
     expect(speak).toHaveBeenCalledWith("טקסט גיבוי", expect.any(Object));
   });

@@ -2,7 +2,8 @@
 // installed Chrome, and writes the highlighted item's box to src/content/highlights.ts.
 //   npm run slides            all steps
 //   npm run slides -- 2.3 5.1 only these
-import { writeFileSync, existsSync } from "node:fs";
+import { copyFileSync, writeFileSync, existsSync } from "node:fs";
+import { ARCH_BOXES, ARCH_SIZE } from "../slides/architecture-boxes";
 import { chromium } from "playwright-core";
 import { modules } from "../src/content/lessons";
 import { SLIDES, type Item, type Slide } from "../slides/slides";
@@ -31,6 +32,8 @@ function card(it: Item, cls: string) {
 
 function body(s: Slide): string {
   switch (s.kind) {
+    case "arch":
+      return "";
     case "cards":
       return `<div class="grid" style="grid-template-columns:repeat(${s.cols ?? 3},1fr)">${s.items.map((it, i) => card(it, hl(i, s.hl))).join("")}</div>`;
     case "flow":
@@ -106,6 +109,17 @@ async function main() {
     for (const st of m.steps) {
       const s = SLIDES[st.id];
       if (!s) throw new Error(`no slide for ${st.id}`);
+      if (s.kind === "arch") {
+        // the architecture diagram itself, with the component's region as the highlight
+        const [x1, y1, x2, y2] = ARCH_BOXES[s.box];
+        const p = (v: number, d: number) => Math.round((v / d) * 1000) / 10;
+        const { w, h } = ARCH_SIZE;
+        const [a, b] = [Math.max(0, x1 - 6), Math.max(0, y1 - 6)];
+        const [c, d] = [Math.min(w, x2 + 6), Math.min(h, y2 + 6)];
+        boxes[st.id] = { x: p(a, w), y: p(b, h), w: p(c - a, w), h: p(d - b, h) };
+        if (!only.length || only.includes(st.id)) copyFileSync("slides/architecture.jpg", `public/screens/${st.id}.jpg`);
+        continue;
+      }
       await tab.setContent(page(m.title, m.icon, st.id, st.title, s), { waitUntil: "networkidle" });
       await tab.evaluate(() => document.fonts.ready);
       const r = await tab.evaluate(() => {

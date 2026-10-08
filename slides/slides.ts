@@ -4,6 +4,7 @@
 
 export type Item = { icon?: string; title: string; text?: string; tag?: string };
 export type Slide =
+  | { kind: "arch"; box: string; note?: string }
   | { kind: "cards"; items: Item[]; cols?: number; hl?: number; note?: string }
   | { kind: "flow"; items: Item[]; hl?: number; note?: string }
   | { kind: "stats"; items: { value: string; label: string; sub?: string }[]; hl?: number; note?: string }
@@ -361,4 +362,162 @@ export const SLIDES: Record<string, Slide> = {
     ],
     note: "ואחריה: סדנת תהליך עם משתמש מפתח מכל מערכת",
   },
+
+  // ---- architecture deep-dive (diagram regions) ----
+  "8.1": { kind: "arch", box: "legacy" },
+  "8.2": { kind: "arch", box: "rdp" },
+  "8.3": { kind: "arch", box: "terminal" },
+  "8.4": { kind: "arch", box: "access" },
+  "8.5": { kind: "arch", box: "vm" },
+  "8.6": { kind: "arch", box: "sql" },
+  "8.7": { kind: "arch", box: "fileServer" },
+  "8.8": { kind: "arch", box: "external" },
+  "8.9": { kind: "arch", box: "pains" },
+  "9.1": { kind: "arch", box: "target" },
+  "9.2": { kind: "arch", box: "browser" },
+  "9.3": { kind: "arch", box: "cloud" },
+  "9.4": { kind: "arch", box: "api" },
+  "9.5": { kind: "arch", box: "bff" },
+  "9.6": { kind: "arch", box: "bffMsg" },
+  "9.7": { kind: "arch", box: "queue" },
+  "9.8": { kind: "arch", box: "backend" },
+  "9.9": {
+    kind: "flow",
+    hl: 1,
+    items: [
+      { icon: "📦", title: "קונטיינר", text: "קוד + כל מה שהוא צריך כדי לרוץ" },
+      { icon: "🛳️", title: "ECS", text: "מריץ ומנהל את הקונטיינרים" },
+      { icon: "⚡", title: "Fargate", text: "בלי שרתים לנהל · גדל לפי עומס" },
+    ],
+    note: "כל מיקרו־שירות רץ בקונטיינר משלו, ונפרס ומוגדל בנפרד",
+  },
+  "9.10": { kind: "arch", box: "rds" },
+  "9.11": { kind: "arch", box: "stackDb" },
+  "9.12": { kind: "arch", box: "redis" },
+  "9.13": { kind: "arch", box: "s3" },
+  "9.14": { kind: "arch", box: "secrets" },
+  "9.15": { kind: "arch", box: "agent" },
+  "9.16": { kind: "arch", box: "scanner" },
+  "10.1": {
+    kind: "compare",
+    hl: 1,
+    left: { title: "היום", items: ["שרת Terminal ו־RDP", "התקנות על כל תחנה", "עדכון = עבודה על השרת"] },
+    right: { title: "Browser-first", items: ["דפדפן בלבד", "חומרה מקומית רק דרך Local Agent", "עדכון אחד לכל המשתמשים"] },
+  },
+  "10.2": {
+    kind: "compare",
+    hl: 0,
+    left: { title: "BFF — כן", items: ["אימות והרשאות", "זיהוי הרשות וניתוב", "הרכבת תשובה למסך"] },
+    right: { title: "BFF — לא", items: ["חישובי חיוב", "אישור תשלום", "כל כלל עסקי"] },
+    note: "לוגיקה עסקית גרה רק בשירותי ה־Backend",
+  },
+  "10.3": {
+    kind: "flow",
+    hl: 1,
+    items: [
+      { icon: "🔐", title: "בקשה", text: "נושאת את זהות הרשות" },
+      { icon: "🧭", title: "מישור הבקרה", text: "קובע את מסד הרשות" },
+      { icon: "🛡️", title: "שירות", text: "בודק שייכות בכל פעולה" },
+      { icon: "🗄️", title: "מסד הרשות", text: "נתונים מבודדים" },
+    ],
+    note: "גם טעות בקוד לא אמורה לחשוף נתונים בין רשויות",
+  },
+  "10.4": {
+    kind: "flow",
+    hl: 1,
+    items: [
+      { icon: "🖱️", title: "בקשה", text: "הפק 5,000 שוברים" },
+      { icon: "📬", title: "תור", text: "הבקשה נשמרת" },
+      { icon: "⚙️", title: "עבודה ברקע", text: "ניסיון חוזר בכשל" },
+      { icon: "🔔", title: "עדכון", text: "הסתיים — להורדה" },
+    ],
+    note: "המסך לא נתקע · ניתוק לא קוטע · הרבה פעולות במקביל",
+  },
+  "10.5": {
+    kind: "compare",
+    hl: 0,
+    left: { title: "מישור הבקרה — Control Plane", items: ["RDS PostgreSQL אחד", "רשויות, הגדרות, משתמשים", "לאיזה מסד שייכת כל רשות"] },
+    right: { title: "מישור הנתונים — Data Plane", items: ["SQL Server לכל רשות", "חיובים, תשלומים, תיקים", "היסטוריה קיימת נשמרת"] },
+  },
+  "11.1": {
+    kind: "flow",
+    hl: 2,
+    items: [
+      { icon: "🌐", title: "דפדפן", text: "הזדהות" },
+      { icon: "🚪", title: "BFF", text: "אימות" },
+      { icon: "🧭", title: "מישור הבקרה", text: "רשות · הרשאות · מסד" },
+      { icon: "⚡", title: "Redis", text: "הגדרות במטמון" },
+      { icon: "🔑", title: "Secrets Manager", text: "פרטי חיבור" },
+    ],
+  },
+  "11.2": {
+    kind: "flow",
+    hl: 3,
+    items: [
+      { icon: "🌐", title: "דפדפן", text: "פותח מסך יתרות" },
+      { icon: "🚪", title: "BFF", text: "הרשאה וניתוב" },
+      { icon: "💳", title: "שירות גבייה", text: "" },
+      { icon: "⚡", title: "Redis", text: "יש במטמון?" },
+      { icon: "🗄️", title: "מסד הרשות", text: "אם לא — קורא ושומר" },
+    ],
+  },
+  "11.3": {
+    kind: "flow",
+    hl: 2,
+    items: [
+      { icon: "💳", title: "שירות תשלומים", text: "אימות מול הסליקה" },
+      { icon: "🗄️", title: "שמירה", text: "עם מזהה פעולה ייחודי" },
+      { icon: "📣", title: "SNS", text: "אירוע: תשלום נקלט" },
+      { icon: "🧾", title: "המגיבים", text: "קבלה · הודעה · הנהלת חשבונות" },
+    ],
+  },
+  "11.4": {
+    kind: "flow",
+    hl: 2,
+    items: [
+      { icon: "🖱️", title: "בקשה", text: "הפקה בכמות" },
+      { icon: "📬", title: "SQS", text: "הבקשה בטיפול" },
+      { icon: "⚙️", title: "Fargate", text: "מפיק ברקע" },
+      { icon: "🪣", title: "S3", text: "הקבצים נשמרים" },
+      { icon: "🔔", title: "עדכון", text: "קישור זמני להורדה" },
+    ],
+  },
+  "11.5": {
+    kind: "flow",
+    hl: 1,
+    items: [
+      { icon: "🖱️", title: "סרוק", text: "לחיצה בדפדפן" },
+      { icon: "🛰️", title: "SignalR", text: "פקודה לסוכן" },
+      { icon: "🖨️", title: "Local Agent", text: "מפעיל את הסורק" },
+      { icon: "🪣", title: "S3", text: "קובץ משויך לתיק" },
+    ],
+  },
+  "11.6": {
+    kind: "flow",
+    hl: 1,
+    items: [
+      { icon: "⚙️", title: "שירות", text: "צריך לשלוח הודעה" },
+      { icon: "📬", title: "תור הודעות", text: "תבנית · נמענים" },
+      { icon: "🔑", title: "Secrets Manager", text: "מפתח הספק" },
+      { icon: "📨", title: "ספק SMS / דואר", text: "סטטוס מסירה" },
+    ],
+    note: "ספק לא זמין? ההודעה נשארת בתור ונשלחת שוב — בלי כפילות",
+  },
+  "12.1": { kind: "arch", box: "wave1" },
+  "12.2": { kind: "arch", box: "wave2" },
+  "12.3": { kind: "arch", box: "wave3" },
+  "12.4": {
+    kind: "table",
+    hl: 2,
+    head: ["היום", "ביעד"],
+    rows: [
+      ["RDP ושרת Terminal", "דפדפן — Angular"],
+      ["טפסי Access ו־VBA", "מסכי WEB ושירותי Backend"],
+      ["גישה ישירה ל־SQL Server", "גישה דרך שירותים בלבד"],
+      ["שרת קבצים (UNC)", "S3"],
+      ["סיסמאות בקוד ובטבלאות", "Secrets Manager"],
+      ["\\tsclient", "Local Agent"],
+    ],
+  },
+  "12.5": { kind: "arch", box: "stack" },
 };
