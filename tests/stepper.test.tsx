@@ -25,7 +25,7 @@ describe("process stepper", () => {
   it("jumps between steps of the current topic", () => {
     render(<App />);
     fireEvent.click(within(screen.getByTestId("process-stepper")).getByRole("button", { name: /תמונה כללית/ }));
-    fireEvent.click(within(screen.getByTestId("step-dots")).getByRole("button", { name: /^שלב 1\.3/ }));
+    fireEvent.click(within(screen.getByTestId("step-dots")).getByRole("button", { name: /^שלב 2\.3/ }));
     expect(title()).toHaveTextContent(allSteps.find((s) => s.id === "1.3")!.title);
   });
 
