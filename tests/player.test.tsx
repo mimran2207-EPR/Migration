@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
-import App from "../src/App";
+import App from "../src/CourseApp";
 import * as narration from "../src/lib/narration";
 import type { NarrationHandlers } from "../src/lib/narration";
 

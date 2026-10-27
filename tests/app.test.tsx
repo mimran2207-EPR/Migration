@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, within } from "@testing-library/react";
-import App from "../src/App";
+import App from "../src/CourseApp";
 import { allSteps, findStep } from "../src/content/lessons";
 import { loadProgress, markDone, resetProgress, setLast } from "../src/lib/progress";
 import { screenUrl, avatarVideoUrl } from "../src/lib/media";

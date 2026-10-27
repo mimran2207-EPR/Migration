@@ -1,5 +1,5 @@
 import InstallButton from "./InstallButton";
-import type { View } from "../App";
+import type { View } from "../CourseApp";
 
 interface Props {
   done: number;

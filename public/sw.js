@@ -3,7 +3,7 @@
 // Built assets: cache first (hashed names). Slides, narration, presenter images and PDFs: network first,
 // saved as they are viewed so they are there offline.
 // A response that is HTML where media was expected (the SPA fallback for a missing file) is never cached.
-const CACHE = "migration-training-v1";
+const CACHE = "migration-training-v2";
 const SHELL = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/avatar/fig-0.webp"];
 
 self.addEventListener("install", (e) => {

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, within } from "@testing-library/react";
-import App from "../src/App";
+import App from "../src/CourseApp";
 import { allSteps, modules } from "../src/content/lessons";
 
 beforeEach(() => localStorage.clear());
