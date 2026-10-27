@@ -13,12 +13,16 @@ describe("concepts site", () => {
       expect(s.answer).toBeGreaterThanOrEqual(0);
       expect(s.answer).toBeLessThan(4);
     }
-    for (const d of makeDrills(concepts, 7)) expect(d.options[d.answer]).toBe(d.concept);
+    for (const d of makeDrills(concepts, 7))
+      expect(d.options[d.answer]).toBe(d.concept);
   });
 
-  it("opens on the concepts, without the course", () => {
+  it("practice tab: concepts lab without the course", () => {
     render(<App />);
-    expect(screen.getByRole("heading", { name: "מושגים ותרגול" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "תרגול" }));
+    expect(
+      screen.getByRole("heading", { name: "מושגים ותרגול" }),
+    ).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "הדרכה" })).toBeNull();
     fireEvent.click(screen.getAllByRole("button", { name: "סמנו: הבנתי" })[0]);
     expect(screen.getAllByRole("button", { name: "✓ הבנתי" }).length).toBe(1);
@@ -32,6 +36,35 @@ describe("visual examples", () => {
     const { examples } = await import("../src/content/examples");
     const { diagrams } = await import("../src/content/diagrams");
     expect(concepts.filter((c) => !examples[c.n]).map((c) => c.n)).toEqual([]);
-    expect(diagrams.map((d) => d.stage)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(diagrams.map((d) => d.stage)).toEqual([
+      0, 1, 2, 3, 4, 5, 6, 7, 8, 9,
+    ]);
+  });
+});
+
+describe("learning path", () => {
+  it("opens on one concept with its four parts, and moves on", () => {
+    window.location.hash = "#/c/1";
+    render(<App />);
+    expect(screen.getByRole("heading", { name: /ההסבר$/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /הסבר ויזואלי$/ }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /הדגמה$/ })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /בדקו את עצמכם$/ }),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: /הבנתי, למושג הבא/ }));
+    expect(window.location.hash).toBe("#/c/2");
+    expect(
+      JSON.parse(localStorage.getItem("migration-concepts-known-v1")!),
+    ).toContain(1);
+  });
+
+  it("every concept has a full lesson", async () => {
+    const { deepByN } = await import("../src/content/deep");
+    expect(concepts.filter((c) => !deepByN.get(c.n)).map((c) => c.n)).toEqual(
+      [],
+    );
   });
 });

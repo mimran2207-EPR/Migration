@@ -6,10 +6,13 @@ export default function StageDiagramView({
   diagram,
   known,
   onOpen,
+  highlight,
 }: {
   diagram: StageDiagram;
   known: Set<number>;
   onOpen: (n: number) => void;
+  /** The concept being learned: marked "you are here". */
+  highlight?: number;
 }) {
   return (
     <figure className="m-0 rounded-2xl border border-slate-200 bg-white p-3 md:p-5">
@@ -35,7 +38,10 @@ export default function StageDiagramView({
                         {node.label}
                       </span>
                       {node.sub && (
-                        <span className="block text-[11px] font-normal opacity-80 [overflow-wrap:anywhere]" dir="auto">
+                        <span
+                          className="block text-[11px] font-normal opacity-80 [overflow-wrap:anywhere]"
+                          dir="auto"
+                        >
                           {node.sub}
                         </span>
                       )}
@@ -51,9 +57,11 @@ export default function StageDiagramView({
                           type="button"
                           onClick={() => onOpen(node.concept!)}
                           className={`relative min-h-11 w-full rounded-xl border-2 px-3 py-1.5 text-center text-sm transition hover:-translate-y-0.5 hover:shadow ${
-                            known.has(node.concept)
-                              ? "border-emerald-400 bg-emerald-50 text-emerald-900"
-                              : "border-indigo-300 bg-white text-indigo-900"
+                            highlight === node.concept
+                              ? "border-amber-500 bg-amber-100 text-amber-950 ring-4 ring-amber-200"
+                              : known.has(node.concept)
+                                ? "border-emerald-400 bg-emerald-50 text-emerald-900"
+                                : "border-indigo-300 bg-white text-indigo-900"
                           }`}
                         >
                           {box}
