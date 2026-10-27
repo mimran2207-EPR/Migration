@@ -1,6 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { STAGES, concepts, type Concept } from "../content/concepts";
 import { scenarios } from "../content/practice";
+import { examples } from "../content/examples";
+import { diagrams } from "../content/diagrams";
+import ExampleView from "./ExampleView";
+import StageDiagramView from "./StageDiagramView";
 import {
   byNumber,
   loadKnown,
@@ -13,6 +17,7 @@ import TechText from "./TechText";
 
 type Mode = "cards" | "product" | "code";
 const STAGE_IDS = Object.keys(STAGES).map(Number);
+const diagramOf = (stage: number) => diagrams.find((d) => d.stage === stage);
 
 // "מושגים ותרגול": every concept of the development structure with a short explanation and the
 // concrete technical move, then practice — situations from the product, and "which concept is
@@ -25,6 +30,25 @@ export default function ConceptLab() {
   const [seed, setSeed] = useState(() => Date.now() % 1000);
   const [qi, setQi] = useState(0);
   const [score, setScore] = useState({ right: 0, total: 0 });
+  const [flash, setFlash] = useState<number | null>(null);
+
+  // A concept opened from the stage picture: bring its card into view and highlight it.
+  useEffect(() => {
+    if (flash === null) return;
+    document
+      .getElementById(`concept-${flash}`)
+      ?.scrollIntoView?.({ behavior: "smooth", block: "center" });
+    const t = setTimeout(() => setFlash(null), 1800);
+    return () => clearTimeout(t);
+  }, [flash]);
+
+  function openConcept(n: number) {
+    const c = byNumber.get(n);
+    if (!c) return;
+    setQuery("");
+    if (stage !== "all" && stage !== c.stage) setStage(c.stage);
+    setFlash(n);
+  }
 
   const inStage = (c: { stage: number }) =>
     stage === "all" || c.stage === stage;
@@ -144,7 +168,7 @@ export default function ConceptLab() {
       <div
         role="tablist"
         aria-label="סוג הלימוד"
-        className="mt-4 inline-flex rounded-2xl bg-slate-100 p-1"
+        className="mt-4 grid grid-cols-3 rounded-2xl bg-slate-100 p-1 sm:inline-grid"
       >
         {(
           [
@@ -159,7 +183,7 @@ export default function ConceptLab() {
             role="tab"
             aria-selected={mode === m}
             onClick={() => restart(m)}
-            className={`min-h-10 rounded-xl px-4 text-sm font-semibold ${mode === m ? "bg-white text-indigo-800 shadow" : "text-slate-600"}`}
+            className={`min-h-11 rounded-xl px-2 text-[13px] font-semibold leading-tight sm:px-4 sm:text-sm ${mode === m ? "bg-white text-indigo-800 shadow" : "text-slate-600"}`}
           >
             {label}
           </button>
@@ -168,6 +192,15 @@ export default function ConceptLab() {
 
       {mode === "cards" && (
         <>
+          {stage !== "all" && !q && diagramOf(stage) && (
+            <div className="mt-4">
+              <StageDiagramView
+                diagram={diagramOf(stage)!}
+                known={known}
+                onOpen={openConcept}
+              />
+            </div>
+          )}
           <input
             type="search"
             value={query}
@@ -182,6 +215,7 @@ export default function ConceptLab() {
                 key={c.n}
                 c={c}
                 known={known.has(c.n)}
+                flash={flash === c.n}
                 onKnown={(on) => mark(c.n, on)}
               />
             ))}
@@ -254,6 +288,7 @@ export default function ConceptLab() {
                         </span>
                       ))}
                   </span>
+                  <ExampleFor n={stageScenarios[qi].concepts[0]} />
                 </>
               }
               onAnswered={(ok) => {
@@ -292,6 +327,7 @@ export default function ConceptLab() {
                     {drills[qi].concept.term}
                   </bdi>
                   : {drills[qi].concept.he}
+                  <ExampleFor n={drills[qi].concept.n} />
                 </>
               }
               onAnswered={(ok) => {
@@ -311,22 +347,39 @@ export default function ConceptLab() {
   );
 }
 
+function ExampleFor({ n }: { n: number | undefined }) {
+  const example = n === undefined ? undefined : examples[n];
+  if (!example) return null;
+  return (
+    <div className="mt-3 rounded-xl bg-white p-3 text-slate-800 ring-1 ring-slate-200">
+      <span className="mb-2 block text-xs font-bold text-indigo-700">
+        דוגמה ויזואלית
+      </span>
+      <ExampleView example={example} />
+    </div>
+  );
+}
+
 function ConceptCard({
   c,
   known,
+  flash,
   onKnown,
 }: {
   c: Concept;
   known: boolean;
+  flash: boolean;
   onKnown: (on: boolean) => void;
 }) {
+  const example = examples[c.n];
   return (
     <li
-      className={`flex flex-col rounded-2xl border bg-white p-4 transition ${known ? "border-emerald-300" : "border-slate-200"}`}
+      id={`concept-${c.n}`}
+      className={`flex min-w-0 scroll-mt-4 flex-col rounded-2xl border bg-white p-4 transition ${known ? "border-emerald-300" : "border-slate-200"} ${flash ? "ring-4 ring-amber-300" : ""}`}
     >
       <div className="flex items-start justify-between gap-2">
         <h3
-          className="text-lg font-extrabold text-slate-800"
+          className="min-w-0 text-lg font-extrabold text-slate-800 [overflow-wrap:anywhere]"
           dir="ltr"
           style={{ unicodeBidi: "isolate" }}
         >
@@ -340,7 +393,15 @@ function ConceptCard({
         </span>
       </div>
       <p className="mt-1 text-slate-700">{c.he}</p>
-      <div className="mt-3 flex-1 rounded-xl bg-slate-900 p-3 text-sm leading-relaxed text-slate-100">
+      {example && (
+        <div className="mt-3">
+          <span className="mb-1.5 block text-xs font-semibold text-indigo-700">
+            דוגמה ויזואלית
+          </span>
+          <ExampleView example={example} />
+        </div>
+      )}
+      <div className="mb-3 mt-3 rounded-xl bg-slate-900 p-3 text-sm leading-relaxed text-slate-100">
         <span className="mb-1 block text-xs font-semibold text-emerald-300">
           איך עושים את זה בפועל
         </span>
@@ -350,7 +411,7 @@ function ConceptCard({
         type="button"
         aria-pressed={known}
         onClick={() => onKnown(!known)}
-        className={`mt-3 min-h-10 self-start rounded-full px-4 text-sm font-semibold ${known ? "bg-emerald-600 text-white" : "border border-slate-300 text-slate-600 hover:border-emerald-500 hover:text-emerald-700"}`}
+        className={`mt-auto min-h-10 self-start rounded-full px-4 text-sm font-semibold ${known ? "bg-emerald-600 text-white" : "border border-slate-300 text-slate-600 hover:border-emerald-500 hover:text-emerald-700"}`}
       >
         {known ? "✓ הבנתי" : "סמנו: הבנתי"}
       </button>

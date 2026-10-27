@@ -26,3 +26,12 @@ describe("concepts site", () => {
     expect(screen.getByRole("button", { name: "בדיקה" })).toBeDisabled();
   });
 });
+
+describe("visual examples", () => {
+  it("every concept has an example and every stage a diagram", async () => {
+    const { examples } = await import("../src/content/examples");
+    const { diagrams } = await import("../src/content/diagrams");
+    expect(concepts.filter((c) => !examples[c.n]).map((c) => c.n)).toEqual([]);
+    expect(diagrams.map((d) => d.stage)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+  });
+});
