@@ -6,6 +6,8 @@ export interface PathPrefs {
   /** Keep playing the next concept when one ends (listening on the road). */
   auto: boolean;
   rate: number;
+  /** Concepts marked "understood" are left out of the path (next, previous, continuous listening). */
+  skipKnown: boolean;
 }
 
 export const RATES = [1, 1.15, 1.3, 1.5];
@@ -34,10 +36,11 @@ export function loadPrefs(): PathPrefs {
     ) as Partial<PathPrefs>;
     return {
       auto: p.auto ?? true,
+      skipKnown: p.skipKnown ?? true,
       rate: RATES.includes(p.rate ?? 1) ? (p.rate ?? 1) : 1,
     };
   } catch {
-    return { auto: true, rate: 1 };
+    return { auto: true, rate: 1, skipKnown: true };
   }
 }
 

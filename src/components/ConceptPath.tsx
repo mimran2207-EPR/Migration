@@ -19,16 +19,33 @@ import StageDiagramView from "./StageDiagramView";
 import TechText from "./TechText";
 
 const ORDER = concepts.map((c) => c.n);
-const first = () =>
-  conceptFromHash(window.location.hash) ?? loadLast() ?? ORDER[0];
+
+/** Where to open: the address, else where the learner stopped — moved on to the first concept
+ * still to learn when that one is already understood. */
+function first(): number {
+  const fromHash = conceptFromHash(window.location.hash);
+  if (fromHash && ORDER.includes(fromHash)) return fromHash;
+  const last = loadLast();
+  const start = last && ORDER.includes(last) ? last : ORDER[0];
+  const known = loadKnown();
+  if (!loadPrefs().skipKnown || !known.has(start)) return start;
+  return stepFrom(start, 1, known, true) ?? stepFrom(start, -1, known, true) ?? start;
+}
+
+/** The next (dir 1) or previous (dir -1) concept in the path, leaving out understood ones when asked. */
+function stepFrom(n: number, dir: 1 | -1, known: Set<number>, skipKnown: boolean): number | null {
+  for (let i = ORDER.indexOf(n) + dir; i >= 0 && i < ORDER.length; i += dir) {
+    if (!skipKnown || !known.has(ORDER[i])) return ORDER[i];
+  }
+  return null;
+}
 
 // The learning path: one concept at a time — explanation, visual explanation, demonstration and a
 // quick check — with a Hebrew narration that keeps going from concept to concept (for listening on
 // the road), controllable from the lock screen / car (Media Session).
 export default function ConceptPath() {
-  const [n, setN] = useState(() =>
-    byNumber.has(first()) ? first() : ORDER[0],
-  );
+  const [n, setN] = useState(first);
+  const [celebrate, setCelebrate] = useState(false);
   const [known, setKnown] = useState(loadKnown);
   const [prefs, setPrefs] = useState(loadPrefs);
   const [playing, setPlaying] = useState(false);
@@ -40,16 +57,17 @@ export default function ConceptPath() {
 
   const c = byNumber.get(n)!;
   const d = deepByN.get(n);
-  const pos = ORDER.indexOf(n);
   const diagram = diagrams.find((x) => x.stage === c.stage);
   const inDiagram = diagram?.layers.some((l) =>
     l.nodes.some((node) => node.concept === n),
   );
 
-  const markKnown = useCallback((num: number) => {
+  const setUnderstood = useCallback((num: number, on: boolean) => {
     setKnown((prev) => {
-      if (prev.has(num)) return prev;
-      const next = new Set(prev).add(num);
+      if (prev.has(num) === on) return prev;
+      const next = new Set(prev);
+      if (on) next.add(num);
+      else next.delete(num);
       saveKnown(next);
       return next;
     });
@@ -63,11 +81,25 @@ export default function ConceptPath() {
     setN(num);
     window.scrollTo({ top: 0 });
   }, []);
-  const next = useCallback(
-    () => pos < ORDER.length - 1 && go(ORDER[pos + 1]),
-    [pos, go],
-  );
-  const prev = useCallback(() => pos > 0 && go(ORDER[pos - 1]), [pos, go]);
+  const nextN = stepFrom(n, 1, known, prefs.skipKnown);
+  const prevN = stepFrom(n, -1, known, prefs.skipKnown);
+  const left = ORDER.filter((x) => !known.has(x)).length;
+  const next = useCallback(() => nextN !== null && go(nextN), [nextN, go]);
+  const prev = useCallback(() => prevN !== null && go(prevN), [prevN, go]);
+
+  /** "הבנתי": mark it, never show it again in the path, and move on (or celebrate the end). */
+  function understood() {
+    const after = new Set(known).add(n);
+    setUnderstood(n, true);
+    const to = stepFrom(n, 1, after, true) ?? stepFrom(n, -1, after, true);
+    if (to === null) {
+      stopSpeaking();
+      audio.current?.pause();
+      wantPlay.current = false;
+      setCelebrate(true);
+      window.scrollTo({ top: 0 });
+    } else go(to);
+  }
 
   // Address and resume point follow the concept; the audio element is reused (keeps playing in the background).
   useEffect(() => {
@@ -79,7 +111,7 @@ export default function ConceptPath() {
     el.playbackRate = prefs.rate;
     setTime({ at: 0, of: 0 });
     if (wantPlay.current) void el.play().catch(() => {});
-  }, [n]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [n, celebrate]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const onHash = () => {
@@ -97,12 +129,13 @@ export default function ConceptPath() {
 
   useEffect(() => () => stopSpeaking(), []);
 
+  // Narration ended: continuous listening moves to the next concept still to learn.
+  // (Listening doesn't mark it understood — only the learner does.)
   const finished = useCallback(() => {
     setPlaying(false);
-    markKnown(n);
-    if (prefs.auto && pos < ORDER.length - 1) go(ORDER[pos + 1], true);
+    if (prefs.auto && nextN !== null) go(nextN, true);
     else wantPlay.current = false;
-  }, [n, pos, prefs.auto, go, markKnown]);
+  }, [nextN, prefs.auto, go]);
 
   function toggle() {
     const el = audio.current;
@@ -182,6 +215,47 @@ export default function ConceptPath() {
   const fmt = (s: number) =>
     `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
 
+  if (celebrate)
+    return (
+      <main id="main" className="mx-auto w-full max-w-2xl px-3 py-10 md:px-6">
+        <div className="rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-indigo-700 p-8 text-center text-white shadow-xl">
+          <p className="text-6xl" aria-hidden>
+            🎉
+          </p>
+          <h2 className="mt-4 text-3xl font-extrabold md:text-4xl">הבנתם את כל המושגים!</h2>
+          <p className="mt-3 text-lg text-emerald-50">
+            כל <bdi dir="ltr">{ORDER.length}</bdi> המושגים של מבנה הפיתוח 2026 מסומנים "הבנתי".
+          </p>
+        </div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => {
+              setPrefs((p) => ({ ...p, skipKnown: false }));
+              setCelebrate(false);
+              go(ORDER[0], false);
+            }}
+            className="min-h-14 rounded-2xl bg-indigo-700 px-5 font-bold text-white hover:bg-indigo-800"
+          >
+            לעבור שוב על הכל לחזרה
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (!window.confirm("לאפס את כל הסימונים ולהתחיל את המסלול מההתחלה?")) return;
+              saveKnown(new Set());
+              setKnown(new Set());
+              setCelebrate(false);
+              go(ORDER[0], false);
+            }}
+            className="min-h-14 rounded-2xl border-2 border-slate-200 px-5 font-bold text-slate-700 hover:border-indigo-300"
+          >
+            לאפס ולהתחיל מחדש
+          </button>
+        </div>
+      </main>
+    );
+
   return (
     <main
       id="main"
@@ -197,9 +271,10 @@ export default function ConceptPath() {
           ☰ שלב {c.stage} · {STAGES[c.stage]}
         </button>
         <span className="text-slate-500">
-          מושג <bdi dir="ltr">{pos + 1}</bdi> מתוך{" "}
-          <bdi dir="ltr">{ORDER.length}</bdi> · הבנתם{" "}
-          <bdi dir="ltr">{doneCount}</bdi>
+          נשארו <bdi dir="ltr" className="font-bold text-slate-800">{left}</bdi> מושגים · הבנתם{" "}
+          <bdi dir="ltr">
+            {doneCount}/{ORDER.length}
+          </bdi>
         </span>
       </div>
       <div
@@ -306,32 +381,50 @@ export default function ConceptPath() {
 
       {d && (
         <Section num={4} title="בדקו את עצמכם">
-          <Check key={n} check={d.check} onRight={() => markKnown(n)} />
+          <Check key={n} check={d.check} />
         </Section>
       )}
 
-      <div className="mt-6 flex flex-wrap justify-between gap-3">
-        <button
-          type="button"
-          onClick={prev}
-          disabled={pos === 0}
-          className="min-h-12 rounded-full border border-slate-300 px-5 font-bold text-slate-700 disabled:opacity-40"
-        >
-          → המושג הקודם
+      {/* the decision: understood (never shown again) or not yet (comes back later) */}
+      <section aria-label="סיום המושג" className="mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
+        {known.has(n) ? (
+          <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-center">
+            <p className="flex-1 font-bold text-emerald-800">
+              <span className="me-2 inline-flex size-8 items-center justify-center rounded-full bg-emerald-100">✓</span>
+              סימנתם שהבנתם את המושג הזה — הוא לא יופיע שוב במסלול.
+            </p>
+            <button type="button" onClick={() => setUnderstood(n, false)} className="min-h-11 rounded-full border border-slate-300 px-4 text-sm font-bold text-slate-600 hover:border-amber-400 hover:text-amber-700">
+              ↺ החזירו אותו למסלול
+            </button>
+            {nextN !== null && (
+              <button type="button" onClick={next} className="min-h-11 rounded-full bg-indigo-700 px-5 text-sm font-bold text-white hover:bg-indigo-800">
+                למושג הבא ←
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <div className="bg-gradient-to-l from-emerald-50 to-indigo-50 px-5 pb-3 pt-5">
+              <p className="text-xl font-extrabold text-slate-800">הבנתם את המושג?</p>
+              <p className="mt-1 text-sm text-slate-600">"הבנתי" מוציא אותו מהמסלול ומההקראה הרצופה — לא תחזרו עליו. "עוד לא" ממשיך הלאה, והמושג יחכה לכם לסבב הבא.</p>
+            </div>
+            <div className="grid gap-3 p-5 sm:grid-cols-[2fr_1fr]">
+              <button type="button" onClick={understood} className="group flex min-h-16 items-center justify-center gap-3 rounded-2xl bg-emerald-600 px-5 text-lg font-extrabold text-white shadow-lg shadow-emerald-600/20 transition hover:-translate-y-0.5 hover:bg-emerald-700">
+                <span className="flex size-9 items-center justify-center rounded-full bg-white/20 text-xl transition group-hover:scale-110">✓</span>
+                הבנתי — לא להציג שוב
+              </button>
+              <button type="button" onClick={next} disabled={nextN === null} className="min-h-16 rounded-2xl border-2 border-slate-200 px-4 font-bold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-800 disabled:opacity-40">
+                עוד לא — אחזור אליו
+              </button>
+            </div>
+          </>
+        )}
+      </section>
+      {prevN !== null && (
+        <button type="button" onClick={prev} className="mt-3 min-h-11 rounded-full px-3 text-sm font-semibold text-slate-500 hover:bg-slate-100">
+          → למושג הקודם
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            markKnown(n);
-            next();
-          }}
-          className="min-h-12 rounded-full bg-indigo-700 px-6 font-bold text-white hover:bg-indigo-800"
-        >
-          {pos === ORDER.length - 1
-            ? "✓ הבנתי — סיימתי את כל המושגים"
-            : "✓ הבנתי, למושג הבא ←"}
-        </button>
-      </div>
+      )}
 
       {/* player */}
       <audio
@@ -387,7 +480,7 @@ export default function ConceptPath() {
               <button
                 type="button"
                 onClick={prev}
-                disabled={pos === 0}
+                disabled={prevN === null}
                 aria-label="המושג הקודם"
                 className="min-h-12 min-w-12 rounded-full text-2xl text-slate-700 hover:bg-slate-100 disabled:opacity-30"
               >
@@ -404,7 +497,7 @@ export default function ConceptPath() {
               <button
                 type="button"
                 onClick={next}
-                disabled={pos === ORDER.length - 1}
+                disabled={nextN === null}
                 aria-label="המושג הבא"
                 className="min-h-12 min-w-12 rounded-full text-2xl text-slate-700 hover:bg-slate-100 disabled:opacity-30"
               >
@@ -444,6 +537,8 @@ export default function ConceptPath() {
         <ConceptList
           current={n}
           known={known}
+          skipKnown={prefs.skipKnown}
+          onSkipKnown={(on) => setPrefs((p) => ({ ...p, skipKnown: on }))}
           onPick={(num) => (go(num), setListOpen(false))}
           onClose={() => setListOpen(false)}
         />
@@ -476,10 +571,8 @@ function Section({
 
 function Check({
   check,
-  onRight,
 }: {
   check: { q: string; options: string[]; answer: number; why: string };
-  onRight: () => void;
 }) {
   const [picked, setPicked] = useState<number | null>(null);
   const right = picked === check.answer;
@@ -494,10 +587,7 @@ function Check({
             key={k}
             type="button"
             disabled={picked !== null}
-            onClick={() => {
-              setPicked(k);
-              if (k === check.answer) onRight();
-            }}
+            onClick={() => setPicked(k)}
             className={`min-h-12 rounded-xl border-2 px-4 py-2 text-start font-semibold transition ${
               picked === null
                 ? "border-slate-200 text-slate-700 hover:border-indigo-300"
@@ -537,11 +627,15 @@ function Check({
 function ConceptList({
   current,
   known,
+  skipKnown,
+  onSkipKnown,
   onPick,
   onClose,
 }: {
   current: number;
   known: Set<number>;
+  skipKnown: boolean;
+  onSkipKnown: (on: boolean) => void;
   onPick: (n: number) => void;
   onClose: () => void;
 }) {
@@ -577,6 +671,10 @@ function ConceptList({
             ✕
           </button>
         </div>
+        <label className="mb-4 flex min-h-11 cursor-pointer items-center gap-3 rounded-xl bg-slate-50 px-3 text-sm font-semibold text-slate-700">
+          <input type="checkbox" checked={skipKnown} onChange={(e) => onSkipKnown(e.target.checked)} className="size-5 accent-emerald-600" />
+          לדלג על מושגים שסימנתי "הבנתי"
+        </label>
         {Object.keys(STAGES)
           .map(Number)
           .map((s) => (

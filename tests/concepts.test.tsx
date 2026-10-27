@@ -1,9 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import App from "../src/App";
 import { concepts } from "../src/content/concepts";
 import { scenarios } from "../src/content/practice";
 import { makeDrills } from "../src/lib/concepts";
+
+beforeEach(() => localStorage.clear());
 
 describe("concepts site", () => {
   it("has the workbook concepts and valid practice", () => {
@@ -44,7 +46,7 @@ describe("visual examples", () => {
 
 describe("learning path", () => {
   it("opens on one concept with its four parts, and moves on", () => {
-    window.location.hash = "#/c/1";
+    window.history.replaceState(null, "", "#/c/1"); // no async hashchange
     render(<App />);
     expect(screen.getByRole("heading", { name: /ההסבר$/ })).toBeInTheDocument();
     expect(
@@ -54,11 +56,38 @@ describe("learning path", () => {
     expect(
       screen.getByRole("heading", { name: /בדקו את עצמכם$/ }),
     ).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: /הבנתי, למושג הבא/ }));
+    // "Not yet" moves on without marking.
+    fireEvent.click(
+      screen.getByRole("button", { name: /עוד לא — אחזור אליו/ }),
+    );
     expect(window.location.hash).toBe("#/c/2");
+    expect(localStorage.getItem("migration-concepts-known-v1")).toBeNull();
+    // "Understood" marks it and moves on.
+    fireEvent.click(
+      screen.getByRole("button", { name: /הבנתי — לא להציג שוב/ }),
+    );
+    expect(window.location.hash).toBe("#/c/3");
     expect(
       JSON.parse(localStorage.getItem("migration-concepts-known-v1")!),
-    ).toContain(1);
+    ).toEqual([2]);
+    // Going back skips the understood concept 2 and lands on 1, still to learn.
+    fireEvent.click(screen.getAllByRole("button", { name: /המושג הקודם/ })[0]);
+    expect(window.location.hash).toBe("#/c/1");
+  });
+
+  it("celebrates when the last concept to learn is marked understood", () => {
+    localStorage.setItem(
+      "migration-concepts-known-v1",
+      JSON.stringify(concepts.map((c) => c.n).filter((n) => n !== 110)),
+    );
+    window.history.replaceState(null, "", "#/c/110"); // no async hashchange
+    render(<App />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /הבנתי — לא להציג שוב/ }),
+    );
+    expect(
+      screen.getByRole("heading", { name: "הבנתם את כל המושגים!" }),
+    ).toBeInTheDocument();
   });
 
   it("every concept has a full lesson", async () => {
