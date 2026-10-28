@@ -3,7 +3,7 @@
 // Built assets: cache first (hashed names). Slides, narration, presenter images and PDFs: network first,
 // saved as they are viewed so they are there offline.
 // A response that is HTML where media was expected (the SPA fallback for a missing file) is never cached.
-const CACHE = "migration-training-v2";
+const CACHE = "migration-training-v3";
 const SHELL = ["/", "/manifest.webmanifest", "/icons/icon-192.png", "/avatar/fig-0.webp"];
 
 self.addEventListener("install", (e) => {
@@ -12,9 +12,17 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim()),
+    (async () => {
+      const old = (await caches.keys()).filter((k) => k !== CACHE);
+      await Promise.all(old.map((k) => caches.delete(k)));
+      await self.clients.claim();
+      // Replacing an older version: an app left open in the background still shows it — reload its
+      // windows once. (Not on a first visit, where there is nothing old.)
+      if (old.length) {
+        const wins = await self.clients.matchAll({ type: "window" });
+        await Promise.all(wins.map((w) => w.navigate(w.url).catch(() => {})));
+      }
+    })(),
   );
 });
 
